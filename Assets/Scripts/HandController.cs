@@ -17,10 +17,18 @@ public class HandController : MonoBehaviour
 
 
 
+	// Store the previous state of triggers to detect edges
+	protected bool is_hand_closed_previous_frame = false;
+
+	// Store the object atached to this hand
+	// N.B. This can be extended by using a list to attach several objects at the same time
+	protected ObjectAnchor object_grasped = null;
+
 	// Store all gameobjects containing an Anchor
 	// N.B. This list is static as it is the same list for all hands controller
 	// thus there is no need to duplicate it for each instance
 	static protected ObjectAnchor[] anchors_in_the_scene;
+
 	void Start()
 	{
 		// Prevent multiple fetch
@@ -31,40 +39,35 @@ public class HandController : MonoBehaviour
 	// This method checks that the hand is closed depending on the hand side
 	protected bool is_hand_closed()
 	{
-		// Case of a left hand
-		if (handType == HandType.LeftHand) return
-			OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger) > 0.5;   // Check that the index finger is pressing
-
-		// Case of a right hand
-		else return
-			OVRInput.Get(OVRInput.Axis1D.SecondaryIndexTrigger) > 0.5; // Check that the index finger is pressing
+		if (handType == HandType.LeftHand)
+		{
+			// Check if the left middle finger is gripping
+			return OVRInput.Get(OVRInput.RawAxis1D.LHandTrigger) > 0.5;
+		}
+		else
+		{
+			// Check if the right middle finger is gripping
+			return OVRInput.Get(OVRInput.RawAxis1D.RHandTrigger) > 0.5;
+		}
 	}
 
 
 	// Automatically called at each frame
-	void Update() { handle_controller_behavior(); }
+	void Update()
+	{
+		bool hand_closed = is_hand_closed();
 
+		if (hand_closed == is_hand_closed_previous_frame) return;
+		is_hand_closed_previous_frame = hand_closed;
+		handle_controller_behavior(hand_closed);
+	}
 
-	// Store the previous state of triggers to detect edges
-	protected bool is_hand_closed_previous_frame = false;
-
-	// Store the object atached to this hand
-	// N.B. This can be extended by using a list to attach several objects at the same time
-	protected ObjectAnchor object_grasped = null;
 
 	/// <summary>
 	/// This method handles the linking of object anchors to this hand controller
 	/// </summary>
-	protected void handle_controller_behavior()
+	protected void handle_controller_behavior(bool hand_closed)
 	{
-
-		// Check if there is a change in the grasping state (i.e. an edge) otherwise do nothing
-		bool hand_closed = is_hand_closed();
-		if (hand_closed == is_hand_closed_previous_frame) return;
-		is_hand_closed_previous_frame = hand_closed;
-
-
-
 		//==============================================//
 		// Define the behavior when the hand get closed //
 		//==============================================//
