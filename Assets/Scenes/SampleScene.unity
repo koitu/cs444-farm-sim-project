@@ -1459,6 +1459,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 94aa2ce6e73fb2a4ab6bca3a72fa9921, type: 3}
+--- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5198,5 +5199,3 @@ MonoBehaviour:
   graspingRadius: 0.37
   throwable: 1
   grabbed: 0
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
->>>>>>> ecd4d3740c9519ce8ab1b22fa75cdd1c93aaec60
