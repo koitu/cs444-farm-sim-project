@@ -13,16 +13,11 @@ public class HandStepManager : MonoBehaviour
     public MainPlayerController playerController;
     public GameObject handAnchor;
 
-    private StepManager attachedStep;
-    private bool grabbing;
+    private bool isCloseToStep;
 
     private bool is_previous_hand_closed;
 
-    private Transform initial_parent_transform;
-
     private float initial_gravity_modifier;
-
-    private Transform playerTransform;
 
     private Vector3 initialGrabPosition;
 
@@ -32,45 +27,29 @@ public class HandStepManager : MonoBehaviour
 
     private void Start()
     {
-        this.initial_parent_transform = this.handAnchor.transform.parent;
         this.OVRPlayerController = FindObjectOfType<OVRPlayerController>();
         this.initial_gravity_modifier = OVRPlayerController.GravityModifier;
-        this.playerTransform = FindObjectOfType<OVRCameraRig>().transform;
         this.characterController = FindObjectOfType<CharacterController>();
+        this.playerController = FindObjectOfType<MainPlayerController>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!attachedStep) return;
-
-        attachedStep.calcDistanceToStep(this.transform);
-
-        if (grabbing)
-        {
-            // Calculate the offset in position from when the grab started
-            Vector3 currentOffset = this.transform.position - initialGrabPosition;
-            Debug.LogWarning("CURRENT OFFSET: " + currentOffset);
-            // Move the OVRCameraRig in the opposite direction of the offset
-            characterController.Move(currentOffset * -1);
-            //playerTransform.position = new Vector3(playerTransform.position.x, playerTransform.position.y - currentOffset.y, playerTransform.position.z);
-
-            // Update the initial grab position to the new controller position
-            initialGrabPosition = transform.position;
-        }
+        if (!this.isCloseToStep) return;
 
 
         bool hand_closed = is_hand_closed();
 
-        if (hand_closed == is_previous_hand_closed) return;
+        if (hand_closed == this.is_previous_hand_closed) return;
         
         // If it's here it's because something changed
-        is_previous_hand_closed = hand_closed;
+        this.is_previous_hand_closed = hand_closed;
         if (hand_closed)
         {
             grabStep();
         }
-        else
+        else if (!hand_closed)
         {
             releaseStep();
         }
@@ -79,7 +58,7 @@ public class HandStepManager : MonoBehaviour
     protected bool is_hand_closed()
     {
         // Case of a left hand
-        if (handType == HandType.LeftHand) return
+        if (this.handType == HandType.LeftHand) return
             OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger) > 0.5;   // Check that the index finger is pressing
 
         // Case of a right hand
@@ -88,50 +67,29 @@ public class HandStepManager : MonoBehaviour
     }   
 
 
-    protected void grabStep()
+    public void grabStep()
     {
-        Debug.LogWarning("GRABBING THE STEP " + attachedStep.name);
-        this.grabbing = true;
-        this.initialGrabPosition = this.transform.position;
-        //OVRPlayerController.GravityModifier = 0;
-        //OVRPlayerController.HmdResetsY = false;
+        Debug.LogWarning(this.handType + "| HandStepManager STARTING grabbing");
+        this.playerController.attachClimbingStep(this);
     }
 
-    protected void releaseStep()
+    public void releaseStep()
     {
-        Debug.LogWarning("RELEASING THE STEP " + attachedStep.name);
-        this.grabbing = false;
-        //OVRPlayerController.GravityModifier = initial_gravity_modifier;
-        //OVRPlayerController.HmdResetsY = true;
-        // this.handAnchor.transform.SetParent(this.initial_parent_transform);
+        Debug.LogWarning(this.handType + "| HandStepManager RELEASED grabbing");
+        this.playerController.detachClimbingStep(this);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.LogWarning("HAND MANAGER IS TRIGGERING WITH " + other.gameObject.name);
-        StepManager otherStepManager = other.gameObject.GetComponent<StepManager>();
-        if (otherStepManager)
-        {
-            otherStepManager.attach_to(this);
-            if (this.attachedStep)
-            {
-                this.attachedStep.detach_from(this);
-            }
-            this.attachedStep = otherStepManager;
-        }
+        this.isCloseToStep = other.gameObject.tag == "LadderStep";
     }
 
     private void OnTriggerExit(Collider other)
     {
-        StepManager otherStepManager = other.gameObject.GetComponent<StepManager>();
-        if (otherStepManager)
+        if (other.gameObject.tag == "LadderStep")
         {
-            otherStepManager.detach_from(this);
-            if (this.attachedStep)
-            {
-                this.attachedStep = null;
-                releaseStep();
-            }
+            this.isCloseToStep = false;
+            releaseStep();
         }
     }
 }
