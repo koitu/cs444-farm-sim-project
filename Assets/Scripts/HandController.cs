@@ -1,133 +1,47 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+// Boilerplate code for interactions that want to use controller button presses
+// https://cs444-practice.epfl.ch/tp/tp3/img/interaction/raw_mapping.png
 public class HandController : MonoBehaviour
 {
-
-	// Store the hand type to know which button should be pressed
+	// store the hand type to know which button should be pressed
 	public enum HandType : int { LeftHand, RightHand };
-	[Header("Hand Properties")]
+	[Header( "Hand Properties" )]
 	public HandType handType;
+	
 
-
-	// Store the player controller to forward it to the object
-	[Header("Player Controller")]
-	public MainPlayerController playerController;
-
-
-
-	// Store the previous state of triggers to detect edges
-	protected bool is_hand_closed_previous_frame = false;
-
-	// Store the object atached to this hand
-	// N.B. This can be extended by using a list to attach several objects at the same time
-	protected ObjectAnchor object_grasped = null;
-
-	// Store all gameobjects containing an Anchor
-	// N.B. This list is static as it is the same list for all hands controller
-	// thus there is no need to duplicate it for each instance
-	static protected ObjectAnchor[] anchors_in_the_scene;
-
-	void Start()
+	// get how much index trigger is activated
+	internal float index_trigger_pressed()
 	{
-		// Prevent multiple fetch
-		if (anchors_in_the_scene == null) anchors_in_the_scene = GameObject.FindObjectsOfType<ObjectAnchor>();
+		return OVRInput.Get(handType == HandType.LeftHand ?
+			OVRInput.RawAxis1D.LIndexTrigger : OVRInput.RawAxis1D.RIndexTrigger);
 	}
-
-
-	// This method checks that the hand is closed depending on the hand side
-	protected bool is_hand_closed()
+	
+	// get how much hand trigger is activated
+	internal float hand_trigger_pressed()
 	{
-		if (handType == HandType.LeftHand)
-		{
-			// Check if the left middle finger is gripping
-			return OVRInput.Get(OVRInput.RawAxis1D.LHandTrigger) > 0.5;
-		}
-		else
-		{
-			// Check if the right middle finger is gripping
-			return OVRInput.Get(OVRInput.RawAxis1D.RHandTrigger) > 0.5;
-		}
+		return OVRInput.Get(handType == HandType.LeftHand ?
+			OVRInput.RawAxis1D.LHandTrigger : OVRInput.RawAxis1D.RHandTrigger);
 	}
-
-
-	// Automatically called at each frame
-	void Update()
+	
+	// check if the near button is being pressed (X for left and A for right)
+	internal bool near_button_pressed()
 	{
-		bool hand_closed = is_hand_closed();
-
-		if (hand_closed == is_hand_closed_previous_frame) return;
-		is_hand_closed_previous_frame = hand_closed;
-		handle_controller_behavior(hand_closed);
+		return OVRInput.Get(handType == HandType.LeftHand ?
+			OVRInput.RawButton.X : OVRInput.RawButton.A);
 	}
-
-
-	/// <summary>
-	/// This method handles the linking of object anchors to this hand controller
-	/// </summary>
-	protected void handle_controller_behavior(bool hand_closed)
+	
+	// check if the far button is being pressed (Y for left and B for right)
+	internal bool far_button_pressed()
 	{
-		//==============================================//
-		// Define the behavior when the hand get closed //
-		//==============================================//
-		if (hand_closed)
-		{
-
-			// Log hand action detection
-			Debug.LogWarningFormat("{0} get closed", this.transform.parent.name);
-
-			// Determine which object available is the closest from the left hand
-			int best_object_id = -1;
-			float best_object_distance = float.MaxValue;
-			float oject_distance;
-
-			// Iterate over objects to determine if we can interact with it
-			for (int i = 0; i < anchors_in_the_scene.Length; i++)
-			{
-
-				// Skip object not available
-				if (!anchors_in_the_scene[i].is_available()) continue;
-
-				// Compute the distance to the object
-				oject_distance = Vector3.Distance(this.transform.position, anchors_in_the_scene[i].transform.position);
-
-				// Keep in memory the closest object
-				// N.B. We can extend this selection using priorities
-				if (oject_distance < best_object_distance && oject_distance <= anchors_in_the_scene[i].get_grasping_radius())
-				{
-					best_object_id = i;
-					best_object_distance = oject_distance;
-				}
-			}
-
-			// If the best object is in range grab it
-			if (best_object_id != -1)
-			{
-
-				// Store in memory the object grasped
-				object_grasped = anchors_in_the_scene[best_object_id];
-
-				// Log the grasp
-				Debug.LogWarningFormat("{0} grasped {1}", this.transform.parent.name, object_grasped.name);
-
-				// Grab this object
-				object_grasped.attach_to(this);
-			}
-
-
-
-			//==============================================//
-			// Define the behavior when the hand get opened //
-			//==============================================//
-		}
-		else if (object_grasped != null)
-		{
-			// Log the release
-			Debug.LogWarningFormat("{0} released {1}", this.transform.parent.name, object_grasped.name);
-
-			// Release the object
-			object_grasped.detach_from(this);
-		}
+		return OVRInput.Get(handType == HandType.LeftHand ?
+			OVRInput.RawButton.Y : OVRInput.RawButton.B);
+	}
+	
+	// check if the thumbstick is being pressed
+	internal bool thumbstick_button_pressed()
+	{
+		return OVRInput.Get(handType == HandType.LeftHand ?
+			OVRInput.RawButton.LThumbstick : OVRInput.RawButton.RThumbstick);
 	}
 }

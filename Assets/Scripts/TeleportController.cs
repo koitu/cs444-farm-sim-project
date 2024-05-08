@@ -1,13 +1,7 @@
-using System.Collections;
 using UnityEngine;
 
-public class Teleportation : MonoBehaviour
+public class TeleportController : MonoBehaviour
 {
-	// Store the hand type to know which button should be pressed
-	public enum HandType : int { LeftHand, RightHand };
-	[Header("Hand Properties")]
-	public HandType handType;
-
 	[Header("Maximum Distance")]
 	[Range(2f, 30f)]
 	// maximum distance the player can teleport to
@@ -20,44 +14,18 @@ public class Teleportation : MonoBehaviour
 	[Header("Fader")]
 	public OVRScreenFade screenFader;
 
-	// Retrieve the character controller used later to move the player in the environment
-	protected CharacterController character_controller;
+	[SerializeField]
+	private LineRenderer lineRenderer;
 
 	[SerializeField]
-	LineRenderer lineRenderer;
+	private HandController handController;
+
+	// Retrieve the character controller used later to move the player in the environment
+	private CharacterController _characterController;
 
 	void Start()
 	{
-		character_controller = FindObjectOfType<CharacterController>();
-	}
-
-	// check if the ray should be activated
-	private bool activate_ray_button_pressed()
-	{
-		if (handType == HandType.LeftHand)
-		{
-			// Check if the left index finger is pressing A
-			return OVRInput.Get(OVRInput.RawButton.A);
-		}
-		else
-		{
-			// Check if the right index finger is pressing A
-			return OVRInput.Get(OVRInput.RawButton.A);
-		}
-	}
-
-	private bool activate_tp_button_pressed()
-	{
-		if (handType == HandType.LeftHand)
-		{
-			// Check if the left front finger is gripping
-			return OVRInput.Get(OVRInput.RawAxis1D.LIndexTrigger) > 0.5;
-		}
-		else
-		{
-			// Check if the right front finger is gripping
-			return OVRInput.Get(OVRInput.RawAxis1D.RIndexTrigger) > 0.5;
-		}
+		_characterController = FindObjectOfType<CharacterController>();
 	}
 
 	private Ray ray;
@@ -107,11 +75,11 @@ public class Teleportation : MonoBehaviour
 	private void Update()
 	{
 
-		if (activate_ray_button_pressed())
+		if (handController.near_button_pressed())
 		{
             activate_ray();
 
-            if (activate_tp_button_pressed() && Time.time - this.lastTeleport > 0.2f)
+            if (handController.index_trigger_pressed() > 0.5 && Time.time - this.lastTeleport > 0.2f)
             {
                 if (!ray_hit)
                 {
@@ -119,15 +87,15 @@ public class Teleportation : MonoBehaviour
                 }
 
 				this.screenFader.FadeOut();
-				character_controller.Move(ray_end_position - this.transform.position);
+				_characterController.Move(ray_end_position - this.transform.position);
 				//character_controller.transform.position = new Vector3(ray_end_position.x, ray_end_position.y + 1.5f, ray_end_position.z);
 				this.lastTeleport = Time.time;
-				Debug.LogWarning("SHOULD BE TELEPORTING XDDLOL " + character_controller.transform.position);
+				Debug.LogWarning("SHOULD BE TELEPORTING XDDLOL " + _characterController.transform.position);
 				this.screenFader.FadeIn();
             }
 		}
 
-		bool activated_ray = this.activate_ray_button_pressed();
+		bool activated_ray = handController.near_button_pressed();
 		if (activated_ray == this.lastActivatedRay) return;
 		this.lastActivatedRay = activated_ray;
 

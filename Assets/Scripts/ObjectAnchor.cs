@@ -27,12 +27,12 @@ public class ObjectAnchor : MonoBehaviour
 		this.initial_transform_parent = transform.parent;
 	}
 
-    private void Update()
-    {
-        if (this.grabbed)
-        {
+	private void Update()
+	{
+		if (this.grabbed)
+		{
 			this.calcVelocity();
-        }
+		}
 	}
 	protected void calcVelocity()
 	{
@@ -50,8 +50,8 @@ public class ObjectAnchor : MonoBehaviour
 		Gizmos.DrawWireSphere(transform.position, graspingRadius);
 	}
 
-    // Store the hand controller this object will be attached to
-    protected HandController hand_controller = null;
+	// Store the hand controller this object will be attached to
+	protected HandController hand_controller = null;
 
 	public void attach_to(HandController hand_controller)
 	{

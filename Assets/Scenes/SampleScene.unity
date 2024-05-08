@@ -1501,6 +1501,21 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1125068011842588, guid: ce816f2e6abb0504092c23ed9b970dfd, type: 3}
   m_PrefabInstance: {fileID: 1114040580}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &805871383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 805871382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8fbc21277594c8492eb3a0c8aa497ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maximumGrabDistance: 15
+  lineRenderer: {fileID: 805871388}
+  handController: {fileID: 805871384}
 --- !u!114 &805871384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1510,11 +1525,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 805871382}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78a2604ee9ba22643affeeec1e79dce0, type: 3}
+  m_Script: {fileID: 11500000, guid: 6358cd91a08244208e1117cf76a8f52e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   handType: 1
-  playerController: {fileID: 1577749884}
 --- !u!114 &805871385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1522,7 +1536,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 805871382}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8eb23574f5b0dc545972dc11e9fa4519, type: 3}
   m_Name: 
@@ -1543,21 +1557,6 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.2
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &805871387
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 805871382}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e364b1405a2d4c48b3dd145361455ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 1
-  maximumTeleportationDistance: 15
-  lineRenderer: {fileID: 805871388}
 --- !u!120 &805871388
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -1656,23 +1655,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!114 &805871389
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 805871382}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a58c3079970940649b58cd7ca225cce1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 1
-  maximumTeleportationDistance: 15
-  markerPrefab: {fileID: 6984496144424113020, guid: f6280ede11a45e5418036ee0171a99dd, type: 3}
-  screenFader: {fileID: 0}
-  lineRenderer: {fileID: 805871388}
 --- !u!1 &819026523
 GameObject:
   m_ObjectHideFlags: 0
@@ -3049,7 +3031,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f188ad4a4775b444a963b462c3a6718, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  screenFader: {fileID: 0}
+  climbingStep: {fileID: 0}
+  climbingHand: {fileID: 0}
+  characterController: {fileID: 0}
+  OVRPlayerController: {fileID: 0}
 --- !u!1 &1578882587 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6298331351391376669, guid: c1e4fd1bb6a8a06418021366bfeb203b, type: 3}
@@ -3540,20 +3525,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1660603843503870, guid: ce816f2e6abb0504092c23ed9b970dfd, type: 3}
   m_PrefabInstance: {fileID: 1114040580}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1772391121
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1772391119}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78a2604ee9ba22643affeeec1e79dce0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 0
-  playerController: {fileID: 1577749884}
 --- !u!114 &1772391122
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3561,7 +3532,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1772391119}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8eb23574f5b0dc545972dc11e9fa4519, type: 3}
   m_Name: 
@@ -3582,21 +3553,6 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.2
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1772391124
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1772391119}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e364b1405a2d4c48b3dd145361455ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 0
-  maximumTeleportationDistance: 15
-  lineRenderer: {fileID: 1772391125}
 --- !u!120 &1772391125
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -3695,23 +3651,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!114 &1772391126
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1772391119}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a58c3079970940649b58cd7ca225cce1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 0
-  maximumTeleportationDistance: 15
-  markerPrefab: {fileID: 6984496144424113020, guid: f6280ede11a45e5418036ee0171a99dd, type: 3}
-  screenFader: {fileID: 0}
-  lineRenderer: {fileID: 1772391125}
 --- !u!1001 &1777216730
 PrefabInstance:
   m_ObjectHideFlags: 0
