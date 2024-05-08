@@ -46,7 +46,8 @@ public class GrabController : MonoBehaviour
 		// // get point above the midpoint of begin and end in the direction of transform.forward
 		// Vector3 mid = transform.forward * (((begin + end) / 2).magnitude / (float)Math.Cos(angle));
 		// =================================
-		
+
+		Vector3 mid = new Vector3(0,0,0);
 		Vector3[] points = UI.Bezier.QuadraticInterp(begin, mid, end, _curveSamples);
 		// for (int i = 0; i < _curveSamples; i++)
 		// {
