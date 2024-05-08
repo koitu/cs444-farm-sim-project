@@ -5247,7 +5247,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1928080751}
   m_LocalRotation: {x: 0.23469277, y: 0.40723214, z: -0.109117545, w: 0.8758851}
-  m_LocalPosition: {x: 1.22, y: 15.67, z: -22.77}
+  m_LocalPosition: {x: 1.28, y: 15.89, z: -22.71}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -5336,6 +5336,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1973897259}
   - component: {fileID: 1973897260}
+  - component: {fileID: 1973897264}
   - component: {fileID: 1973897262}
   - component: {fileID: 1973897261}
   m_Layer: 0
@@ -5388,7 +5389,7 @@ ParticleSystem:
   ringBufferLoopRange: {x: 0, y: 1}
   looping: 1
   prewarm: 1
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   useRigidbodyForVelocity: 1
@@ -5526,7 +5527,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.8897059, g: 0.6620459, b: 0.32055578, a: 1}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5850,14 +5851,14 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 1
-    maxNumParticles: 1000
+    maxNumParticles: 100
     size3D: 0
     rotation3D: 0
     gravityModifier:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.02
-      minScalar: -0.1
+      scalar: 0.35
+      minScalar: -0.3
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -5897,9 +5898,9 @@ ParticleSystem:
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
-    m_Position: {x: 0, y: 0, z: 0}
+    m_Position: {x: 0, y: 0.4, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 2, y: 0.5, z: 0.5}
+    m_Scale: {x: 0.5, y: 0, z: 0.5}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -7584,7 +7585,7 @@ ParticleSystem:
       m_Bits: 4294967295
     influenceList: []
   ClampVelocityModule:
-    enabled: 1
+    enabled: 0
     x:
       serializedVersion: 2
       minMaxState: 0
@@ -9994,6 +9995,27 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
+--- !u!114 &1973897264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1973897258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6294b7a7f9354b4c814b7fddf3281b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  possiblePlantResults:
+  - {fileID: 3314000637016809296, guid: 7f3e7839a54d5b843903a8801f8f3b6f, type: 3}
+  - {fileID: 8669477496812296385, guid: e2630d572ace3c444910bdbdd1240261, type: 3}
+  - {fileID: 7766884106752811737, guid: 25e58e5e292e5b24fb03892585cd9dbe, type: 3}
+  particles: {fileID: 1973897261}
+  breedTimeMin: 5
+  breedTimeMax: 10
+  isBreeding: 0
+  consumeSeeds: 1
 --- !u!1 &1980785740
 GameObject:
   m_ObjectHideFlags: 0
