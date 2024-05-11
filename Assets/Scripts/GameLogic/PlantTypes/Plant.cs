@@ -13,6 +13,7 @@ public abstract class Plant : MonoBehaviour
     public Mesh Group;
 
     private MeshFilter meshFilter;
+    private MeshCollider meshCollider;
 
     public bool isGrowing = false;
     private int stageN = 0;
@@ -55,6 +56,7 @@ public abstract class Plant : MonoBehaviour
     private void Start()
     {
         this.meshFilter = this.GetComponent<MeshFilter>();
+        this.meshCollider = this.GetComponent<MeshCollider>();
     }
 
     private void Update()
@@ -65,20 +67,25 @@ public abstract class Plant : MonoBehaviour
             {
                 case 0:
                     this.meshFilter.mesh = this.Seed;
+                    this.meshCollider.sharedMesh = this.Seed;
                     break;
                 case 1:
                     
                     this.meshFilter.mesh = this.GrowthStage_S;
+                    this.meshCollider.sharedMesh = this.GrowthStage_S;
                     break;
                 case 2:
                     this.meshFilter.mesh = this.GrowthStage_M;
+                    this.meshCollider.sharedMesh = this.GrowthStage_M;
                     break;
                 case 3:
                     this.meshFilter.mesh = this.GrowthStage_L;
+                    this.meshCollider.sharedMesh = this.GrowthStage_L;
                     this.isGrowing = false;
                     break;
                 default:
                     this.meshFilter.mesh = this.Default;
+                    this.meshCollider.sharedMesh = this.Default;
                     break;
             }
         }

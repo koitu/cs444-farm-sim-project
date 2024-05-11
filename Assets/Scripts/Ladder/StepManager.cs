@@ -5,7 +5,6 @@ using UnityEngine;
 public class StepManager : MonoBehaviour
 {
     private HandStepManager attachedManager;
-    private bool binded;
 
     public void attach_to(HandStepManager handStepManager)
     {

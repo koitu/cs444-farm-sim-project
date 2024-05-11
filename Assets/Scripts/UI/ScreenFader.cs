@@ -15,24 +15,25 @@ public class ScreenFader : MonoBehaviour
 
 
     // Public method to trigger both fades
-    public IEnumerator FadeInAndOut()
+    public void FadeInAndOut()
     {
         // First, fade to black
-        yield return StartCoroutine(Fade(0, 0.6f));
+        StartCoroutine(Fade(0, 0.6f));
         // Then, fade back to clear
-        yield return StartCoroutine(Fade(0.6f, 0));
+        StartCoroutine(Fade(0.6f, 0));
     }
 
     // Call this method to start fading to black
-    public IEnumerator FadeToBlack()
+    public void FadeToBlack()
     {
-        yield return StartCoroutine(Fade(0, 0.6f));
+        StartCoroutine(Fade(0, 0.6f));
     }
 
     // Call this method to fade back to transparent
-    public IEnumerator FadeToClear()
+    public void FadeToClear()
     {
-        yield return StartCoroutine(Fade(0.6f, 0));
+        Debug.Log("Is this even called?");
+        StartCoroutine(Fade(0.6f, 0));
     }
 
     // General fade method
@@ -44,6 +45,7 @@ public class ScreenFader : MonoBehaviour
         {
             timeElapsed += Time.deltaTime;
             float newAlpha = Mathf.Lerp(startAlpha, endAlpha, timeElapsed / fadeDuration);
+            Debug.Log("FADING TO " + newAlpha.ToString());
             fadeImage.color = new Color(0, 0, 0, newAlpha);
             yield return null;
         }

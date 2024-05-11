@@ -269,6 +269,8 @@ GameObject:
   - component: {fileID: 6380968114643397107}
   - component: {fileID: 5497482334287724460}
   - component: {fileID: 1360049153062211626}
+  - component: {fileID: 4880043635646103329}
+  - component: {fileID: 6482053128171441249}
   m_Layer: 0
   m_Name: GrabControllerLeft
   m_TagString: Untagged
@@ -330,6 +332,34 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   velocityThreshold: 2
+--- !u!114 &4880043635646103329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5511931770487103160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8eb23574f5b0dc545972dc11e9fa4519, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 0
+  playerController: {fileID: 0}
+  handAnchor: {fileID: 0}
+--- !u!135 &6482053128171441249
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5511931770487103160}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.3
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8704402880360440195
 GameObject:
   m_ObjectHideFlags: 0

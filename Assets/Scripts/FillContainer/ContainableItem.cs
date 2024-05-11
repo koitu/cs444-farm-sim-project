@@ -10,17 +10,19 @@ public class ContainableItem : MonoBehaviour
 
     // Store initial transform parent
     protected Transform initial_transform_parent;
+    protected bool initial_kinematic;
 
     // Store element's rigidbody
     protected Rigidbody rigidbody;
-    protected BoxCollider boxCollider;
+    public Collider collider;
     protected float releasedInstance;
 
     private void Start()
     {
-        this.initial_transform_parent = this.transform.parent;
         this.rigidbody = this.GetComponent<Rigidbody>();
-        this.boxCollider = this.GetComponent<BoxCollider>();
+        this.collider = this.GetComponent<Collider>();
+        this.initial_transform_parent = this.transform.parent;
+        this.initial_kinematic = this.rigidbody.isKinematic;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -45,7 +47,7 @@ public class ContainableItem : MonoBehaviour
 
         this.transform.SetParent(container.transform);
         this.rigidbody.isKinematic = true;
-        this.boxCollider.enabled = false;
+        //this.collider.enabled = false;
         containerAttached = container;
     }
 
@@ -53,9 +55,9 @@ public class ContainableItem : MonoBehaviour
     {
         if (containerAttached == null) return;
 
-        this.transform.SetParent(initial_transform_parent);
-        this.rigidbody.isKinematic = false;
-        this.boxCollider.enabled = true;
+        this.transform.SetParent(this.initial_transform_parent);
+        this.rigidbody.isKinematic = this.initial_kinematic;
+        //this.collider.enabled = true;
         containerAttached = null;
         this.releasedInstance = Time.time;
     }

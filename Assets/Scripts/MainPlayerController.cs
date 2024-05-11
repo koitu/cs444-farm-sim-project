@@ -20,7 +20,6 @@ public class MainPlayerController : MonoBehaviour
         this.initialGravity = this.OVRPlayerController.GravityModifier;
     }
 
-
     private void Update()
     {
         if (this.climbingHand == null)

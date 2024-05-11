@@ -14,28 +14,17 @@ public class HandStepManager : MonoBehaviour
     public GameObject handAnchor;
 
     private bool isCloseToStep;
-
     private bool is_previous_hand_closed;
 
-    private float initial_gravity_modifier;
-
-    private Vector3 initialGrabPosition;
-
-    private OVRPlayerController OVRPlayerController;
-
-    private CharacterController characterController;
-
     private void Start()
-    {
-        this.OVRPlayerController = FindObjectOfType<OVRPlayerController>();
-        this.initial_gravity_modifier = OVRPlayerController.GravityModifier;
-        this.characterController = FindObjectOfType<CharacterController>();
+    { 
         this.playerController = FindObjectOfType<MainPlayerController>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        
         if (!this.isCloseToStep) return;
 
 
@@ -81,11 +70,13 @@ public class HandStepManager : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.LogWarning("CLOSE TO SOMETHING WITH TAG: " + other.gameObject.tag);
         this.isCloseToStep = other.gameObject.tag == "LadderStep";
     }
 
     private void OnTriggerExit(Collider other)
     {
+        Debug.LogWarning("NOT CLOSE ANYMORE TO SOMETHING WITH TAG: " + other.gameObject.tag);
         if (other.gameObject.tag == "LadderStep")
         {
             this.isCloseToStep = false;

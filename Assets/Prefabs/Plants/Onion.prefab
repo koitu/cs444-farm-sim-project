@@ -34,6 +34,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Onion
       objectReference: {fileID: 0}
+    - target: {fileID: 5012317322255439119, guid: 046850573709efc4bad6fedba2fc520e, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5567147642265039501, guid: 046850573709efc4bad6fedba2fc520e, type: 3}
+      propertyPath: graspingRadius
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 6333180921510527509, guid: 046850573709efc4bad6fedba2fc520e, type: 3}
       propertyPath: m_RootOrder
       value: 0
