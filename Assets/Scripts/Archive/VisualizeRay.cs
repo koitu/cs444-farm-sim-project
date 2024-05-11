@@ -17,7 +17,7 @@ namespace Archive
 		[Header( "Hand Properties" )]
 		public HandType handType;
 
-		protected HandController handController;
+		protected HandControllerOld handController;
 
 		[Header("Maximum Distance")] [Range(2f, 30f)]
 		// maximum distance the player can teleport to
@@ -28,7 +28,7 @@ namespace Archive
 
 		private void Start() 
 		{
-			this.handController = this.GetComponent<HandController>();
+			this.handController = this.GetComponent<HandControllerOld>();
 		}
 
 		// check if the ray should be activated

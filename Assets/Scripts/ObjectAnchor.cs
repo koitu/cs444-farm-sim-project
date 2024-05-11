@@ -51,9 +51,9 @@ public class ObjectAnchor : MonoBehaviour
 	}
 
 	// Store the hand controller this object will be attached to
-	protected HandController hand_controller = null;
+	protected Archive.HandControllerOld hand_controller = null;
 
-	public void attach_to(HandController hand_controller)
+	public void attach_to(Archive.HandControllerOld hand_controller)
 	{
 		if (this.rigidbody) this.rigidbody.isKinematic = true;
 		this.grabbed = true;
@@ -66,7 +66,7 @@ public class ObjectAnchor : MonoBehaviour
 		transform.SetParent(hand_controller.transform);
 	}
 
-	public void detach_from(HandController hand_controller)
+	public void detach_from(Archive.HandControllerOld hand_controller)
 	{
 		// Make sure that the right hand controller ask for the release
 		if (this.hand_controller != hand_controller) return;
