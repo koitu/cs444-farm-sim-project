@@ -24,6 +24,10 @@ namespace Grab
         private bool _held;
         private GrabController _heldBy;
         private Transform _initialParent;
+        
+        // help for planting
+        private bool _planted;
+        private GameObject _plantedBy;
 
         // highlighting parameters
         private bool _highlighting;
@@ -98,6 +102,34 @@ namespace Grab
 	        body.transform.parent = _initialParent;
 	        body.velocity = GetVelocity();
 	        body.angularVelocity = GetRotation();
+        }
+
+        public void PlantObject(GameObject go)
+        {
+	        body.isKinematic = true;
+	        body.transform.parent = go.transform.parent;
+	        
+	        SetLayers(
+		        GrabController.grabbableLayerName,
+		        LayerMask.LayerToName(0)); // default layer (will no longer interact with GrabController)
+
+	        _planted = true;
+	        _plantedBy = gameObject;
+        }
+        
+        public void UnPlantObject(GameObject go)
+        {
+	        if (go != _planted) return;
+
+	        _planted = false;
+	        _plantedBy = null;
+	        
+	        SetLayers(
+		        LayerMask.LayerToName(0), // default layer (will no longer interact with GrabController)
+		        GrabController.grabbableLayerName);
+	        
+	        body.isKinematic = false;
+	        body.transform.parent = _initialParent;
         }
 
         public Vector3 GetVelocity()

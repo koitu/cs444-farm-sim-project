@@ -323,8 +323,8 @@ namespace Grab
 					}
 					else
 					{
-						_grabbable.body.useGravity = false;
-						_grabbable.body.freezeRotation = true;
+						_grabbable.body.useGravity = true;
+						_grabbable.body.freezeRotation = false;
 						_grabState = GrabState.Nothing;
 					}
 					

@@ -5,14 +5,14 @@ namespace Tiling
     [RequireComponent(typeof(Collider))]
     [RequireComponent(typeof(Rigidbody))]
     
-    public class Hoe : MonoBehaviour
+    public class Seed : MonoBehaviour
     {
         // [SerializeField]
         // private Rigidbody body;
         
         private void Start()
         {
-            gameObject.tag = "Hoe";
+            gameObject.tag = "Seed";
         }
     }
 }

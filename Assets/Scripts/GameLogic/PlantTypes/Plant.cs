@@ -31,6 +31,7 @@ public abstract class Plant : MonoBehaviour
         this.GrowTimeLeft = this.GrowTime;
         this.isGrowing = true;
     }
+    
     public virtual void GrowingStep()
     {
         this.GrowTimeLeft--;
@@ -40,7 +41,7 @@ public abstract class Plant : MonoBehaviour
             if (this.stageN < maxStageN)
             {
 
-            this.stageN++;
+                this.stageN++;
             } else
             {
                 this.stageN = maxStageN;
