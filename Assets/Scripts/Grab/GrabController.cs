@@ -214,7 +214,7 @@ namespace Grab
 				2 * dYLen - Physics.gravity.y * Mathf.Pow(PullingConstTime, 2),
 				2 * dXZLen);
 
-			Debug.LogWarningFormat("angle {0}", angle);
+			// Debug.LogWarningFormat("angle {0}", angle);
 			float speed = dXZLen / (PullingConstTime * Mathf.Cos(angle));
 
 			return dXZ.normalized * (Mathf.Cos(angle) * speed) +
@@ -274,14 +274,33 @@ namespace Grab
 					
 					// if no longer holding an object then release it
 					_grabbable.ReleaseObject(this);
-					_grabState = GrabState.Nothing;
+					if (handController.hand_trigger_pressed() > 0.5)
+					{
+						RangeSearchForMatches();
+						if (_hitValid)
+						{
+							DrawMatch();
+						}
+						else
+						{
+							DrawLooking();
+						}
+						_grabState = GrabState.Looking;
+					}
+					else
+					{
+						_grabState = GrabState.Nothing;
+					}
 					break;
 				
 				case GrabState.Pulling:
 					// maintain current state
 					if (handController.index_trigger_pressed() > 0.5)
 					{
-						if (Vector3.Distance(transform.position, _grabbable.transform.position) < 0.1f)
+						// TODO: https://docs.unity3d.com/ScriptReference/Collider.ClosestPointOnBounds.html
+						if (Vector3.Distance(
+							    transform.position, 
+							    _grabbable.transform.position) < 0.2f)
 						{
 							_grabbable.body.useGravity = true;
 							_grabbable.body.freezeRotation = false;
@@ -292,13 +311,13 @@ namespace Grab
 						{
 							_grabbable.body.useGravity = false;
 							_grabbable.body.freezeRotation = true;
-							_grabbable.body.velocity = _grabbable.body.velocity.magnitude *
+							_grabbable.body.velocity = 8f *
 							                           (transform.position - _grabbable.transform.position).normalized;
 						}
-						else
-						{
-							_grabbable.body.velocity += (velocity - _prevVelocity) / _pullingLockoutTime;
-						}
+						// else
+						// {
+						// 	_grabbable.body.velocity += (velocity - _prevVelocity) / _pullingLockoutTime;
+						// }
 					}
 					else
 					{
@@ -355,9 +374,10 @@ namespace Grab
 					{
 						_pullingLockoutTime = PullingConstTime;  // time for object to be pulled
 						_grabbable.body.isKinematic = false;
-						_grabbable.body.velocity = PullInitialVelocity() + velocity;
+						// _grabbable.body.velocity = PullInitialVelocity() + velocity;
+						_grabbable.body.velocity = PullInitialVelocity();
 						_grabbable.body.angularVelocity = PullInitialRotation();
-						Debug.LogWarningFormat("velocity {0} rotation {1}", PullInitialVelocity(), PullInitialRotation());
+						// Debug.LogWarningFormat("velocity {0} rotation {1}", PullInitialVelocity(), PullInitialRotation());
 						_grabbable.UnHighlight();
 						_grabState = GrabState.Pulling;
 						ClearDrawing();
@@ -382,22 +402,24 @@ namespace Grab
 					// upgrade to locked: press index trigger while beam found a match
 					if (handController.index_trigger_pressed() > 0.5)
 					{
-						// not changing state so need to check for holding
-						if (!_holdingIdxTrigger)
+						// // not changing state so need to check for holding
+						// if (!_holdingIdxTrigger)
+						// {
+						// 	_holdingIdxTrigger = true;
+						// 	
+						
+						// check range search for matches, if so then lock on
+						if (_hitValid)
 						{
-							_holdingIdxTrigger = true;
-							
-							// check range search for matches, if so then lock on
-							if (_hitValid)
-							{
-								_grabbable = _hit.rigidbody.gameObject.GetComponent<Grabbable>();
-								_grabbable.body.isKinematic = true;
-								_grabbable.Highlight();
-								_grabState = GrabState.Locked;
-								DrawLocked();
-								break;
-							}
+							_grabbable = _hit.rigidbody.gameObject.GetComponent<Grabbable>();
+							_grabbable.body.isKinematic = true;
+							_grabbable.Highlight();
+							_grabState = GrabState.Locked;
+							DrawLocked();
+							break;
 						}
+						
+						// }
 					}
 					else
 					{

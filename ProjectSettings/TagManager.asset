@@ -1,1 +1,48 @@
-%YAML 1.1%TAG !u! tag:unity3d.com,2011:--- !u!78 &1TagManager:  serializedVersion: 2  tags:  - Container  - Trigger  - LadderStep  - FarmLand  - Hoe  layers:  - Default  - TransparentFX  - Ignore Raycast  -   - Water  - UI  - Player  - Grabbable  - Grabbing  - Terrian  -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   m_SortingLayers:  - name: Default    uniqueID: 0    locked: 0
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Trigger
+  - LadderStep
+  - Container
+  - FarmLand
+  - Hoe
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - Grabbable
+  - Grabbing
+  - Water
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0

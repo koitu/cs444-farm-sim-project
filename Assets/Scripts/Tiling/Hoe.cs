@@ -20,8 +20,8 @@ namespace Tiling
 
         private void OnTriggerEnter(Collider c)
         {
-            // Debug.LogWarningFormat("entered collision");
-            // Debug.LogWarningFormat(c.gameObject.name);
+            Debug.LogWarningFormat("entered collision");
+            Debug.LogWarningFormat(c.gameObject.name);
             
             if (c.gameObject.CompareTag("FarmLand"))
             {
@@ -65,8 +65,9 @@ namespace Tiling
 
         private void OnTriggerExit(Collider c)
         {
-            // Debug.LogWarningFormat("exited collided");
-            // Debug.LogWarningFormat(c.gameObject.tag);
+            Debug.LogWarningFormat("exited collided");
+            Debug.LogWarningFormat(c.gameObject.tag);
+            
             if (c.gameObject.CompareTag("FarmLand"))
             {
                 fl.UpdateSoil();

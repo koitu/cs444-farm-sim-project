@@ -16,7 +16,7 @@ namespace Grab
         [SerializeField] // mesh to be copied and slightly scaled then apply this material
         public Material highlightMaterial;
 
-        
+        [HideInInspector]
         public Rigidbody body;
 
 		// store the grab controller this object will be attached to
