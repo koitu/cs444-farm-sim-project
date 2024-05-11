@@ -24,16 +24,16 @@ public class ScreenFader : MonoBehaviour
     }
 
     // Call this method to start fading to black
-    public void FadeToBlack()
+    public void FadeToBlack(float fadeValue = 0.6f)
     {
-        StartCoroutine(Fade(0, 0.6f));
+        StartCoroutine(Fade(0, fadeValue));
     }
 
     // Call this method to fade back to transparent
-    public void FadeToClear()
+    public void FadeToClear(float fadeValue = 0.6f)
     {
         Debug.Log("Is this even called?");
-        StartCoroutine(Fade(0.6f, 0));
+        StartCoroutine(Fade(fadeValue, 0));
     }
 
     // General fade method

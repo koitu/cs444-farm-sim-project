@@ -15,6 +15,7 @@ public class HandStepManager : MonoBehaviour
 
     private bool isCloseToStep;
     private bool is_previous_hand_closed;
+    private StepManager stepManager;
 
     private void Start()
     { 
@@ -58,29 +59,34 @@ public class HandStepManager : MonoBehaviour
 
     public void grabStep()
     {
-        Debug.LogWarning(this.handType + "| HandStepManager STARTING grabbing");
+        Debug.LogWarning(this.handType + " | HandStepManager STARTING grabbing");
         this.playerController.attachClimbingStep(this);
     }
 
     public void releaseStep()
     {
-        Debug.LogWarning(this.handType + "| HandStepManager RELEASED grabbing");
+        Debug.LogWarning(this.handType + " | HandStepManager RELEASED grabbing");
         this.playerController.detachClimbingStep(this);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.LogWarning("CLOSE TO SOMETHING WITH TAG: " + other.gameObject.tag);
+        Debug.LogWarning(this.handType + " | CLOSE TO SOMETHING WITH TAG: " + other.gameObject.tag);
         this.isCloseToStep = other.gameObject.tag == "LadderStep";
+        this.stepManager = other.GetComponent<StepManager>();
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.LogWarning("NOT CLOSE ANYMORE TO SOMETHING WITH TAG: " + other.gameObject.tag);
+        Debug.LogWarning(this.handType + " | NOT CLOSE ANYMORE TO SOMETHING WITH TAG: " + other.gameObject.tag);
         if (other.gameObject.tag == "LadderStep")
         {
             this.isCloseToStep = false;
-            releaseStep();
+            if (other.GetComponent<StepManager>() == this.stepManager)
+            {
+                releaseStep();
+                this.stepManager = null;
+            }
         }
     }
 }

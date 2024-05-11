@@ -17,6 +17,7 @@ public class MainPlayerController : MonoBehaviour
 
     private void Start()
     {
+        Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
         this.initialGravity = this.OVRPlayerController.GravityModifier;
     }
 
@@ -47,13 +48,21 @@ public class MainPlayerController : MonoBehaviour
         Debug.LogWarning("MainPlayerController got attached");
     }
 
-    public void detachClimbingStep(HandStepManager handStepManager)
+    public void detachClimbingStep(HandStepManager handStepManager, bool bringBackGravity = true)
     {
         if (this.climbingHand == handStepManager)
         {
-            this.OVRPlayerController.GravityModifier = this.initialGravity;
+            if (bringBackGravity)
+            {
+                this.OVRPlayerController.GravityModifier = this.initialGravity;
+            }
             this.climbingHand = null;
             Debug.LogWarning("MainPlayerController got detached");
         }
+    }
+
+    public void bringBackGravity()
+    {
+        this.OVRPlayerController.GravityModifier = this.initialGravity;
     }
 }
