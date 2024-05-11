@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Grab
 {
     [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(Collider))]
     
     public class Grabbable : MonoBehaviour
     {
@@ -20,32 +21,32 @@ namespace Grab
         public Rigidbody body;
 
 		// store the grab controller this object will be attached to
-        private bool held = false;
-        private GrabController heldBy;
-        private Transform initialParent;
+        private bool _held;
+        private GrabController _heldBy;
+        private Transform _initialParent;
 
         // highlighting parameters
-        private bool highlighting = false;
-        private GameObject highlightObject;
+        private bool _highlighting;
+        private GameObject _highlightObject;
 
         // store previous position and rotation values
-        private Vector3 prevPosition;
-        private Quaternion prevRotation;
+        private Vector3 _prevPosition;
+        private Quaternion _prevRotation;
 
 
         private void Start()
         {
 	        body = GetComponent<Rigidbody>();
             gameObject.layer = LayerMask.NameToLayer(GrabController.grabbableLayerName);
-			initialParent = transform.parent;
+			_initialParent = transform.parent;
         }
 
         private void FixedUpdate()
         {
-	        if (!held) return;
+	        if (!_held) return;
 	        
-			prevPosition = body.position;
-			prevRotation = body.rotation;
+			_prevPosition = body.position;
+			_prevRotation = body.rotation;
         }
 
         private static void SetLayerRecursive(Transform obj, int fromLayer, int toLayer)
@@ -78,36 +79,36 @@ namespace Grab
 		        GrabController.grabbableLayerName,
 		        GrabController.grabbingLayerName);
 
-	        held = true;
-	        heldBy = grabController;
+	        _held = true;
+	        _heldBy = grabController;
         }
         
         public void ReleaseObject(GrabController grabController)
         {
-	        if (grabController != heldBy) return;
+	        if (grabController != _heldBy) return;
 
-	        held = false;
-	        heldBy = null;
+	        _held = false;
+	        _heldBy = null;
 	        
 	        SetLayers(
 		        GrabController.grabbingLayerName,
 		        GrabController.grabbableLayerName);
 	        
 	        body.isKinematic = false;
-	        body.transform.parent = initialParent;
-	        body.velocity = getVelocity();
-	        body.angularVelocity = getRotation();
+	        body.transform.parent = _initialParent;
+	        body.velocity = GetVelocity();
+	        body.angularVelocity = GetRotation();
         }
 
-        public Vector3 getVelocity()
+        public Vector3 GetVelocity()
         {
-			float deltaPos = Vector3.Distance(prevPosition, transform.position) / Time.fixedDeltaTime;
-			return (transform.position - prevPosition).normalized * (deltaPos * 1.2f);
+			float deltaPos = Vector3.Distance(_prevPosition, transform.position) / Time.fixedDeltaTime;
+			return (transform.position - _prevPosition).normalized * (deltaPos * 1.2f);
         }
 
-        public Vector3 getRotation()
+        public Vector3 GetRotation()
         {
-	        Quaternion deltaRot = transform.rotation * Quaternion.Inverse(prevRotation);
+	        Quaternion deltaRot = transform.rotation * Quaternion.Inverse(_prevRotation);
 	        deltaRot.ToAngleAxis(out float angle, out Vector3 axis);
 	        return (axis / Time.fixedDeltaTime) * (angle * Mathf.Deg2Rad) / 1.2f;
         }
@@ -115,8 +116,8 @@ namespace Grab
         // highlight an object when it is selected
         public void Highlight()
         {
-	        if (highlighting) return;
-	        highlighting = true;
+	        if (_highlighting) return;
+	        _highlighting = true;
 
 	        if (highlightMaterial == null) return;
 
@@ -124,29 +125,29 @@ namespace Grab
 	        if (mr == null) return;
 	        
 	        //Creates a slightly larger copy of the mesh and sets its material to highlight material
-	        highlightObject = new GameObject();
-	        highlightObject.transform.parent = transform;
-	        highlightObject.transform.localPosition = Vector3.zero;
-	        highlightObject.transform.localRotation = Quaternion.identity;
-	        highlightObject.transform.localScale = Vector3.one * 1.001f;
+	        _highlightObject = new GameObject();
+	        _highlightObject.transform.parent = transform;
+	        _highlightObject.transform.localPosition = Vector3.zero;
+	        _highlightObject.transform.localRotation = Quaternion.identity;
+	        _highlightObject.transform.localScale = Vector3.one * 1.001f;
 
 	        Material[] mats = new Material[mr.materials.Length];
 	        for(int i = 0; i < mats.Length; i++) {
 		        mats[i] = highlightMaterial;
 	        }
-	        highlightObject.GetComponent<MeshRenderer>().materials = mats;
-	        highlightObject.AddComponent<MeshFilter>().sharedMesh = GetComponent<MeshFilter>().sharedMesh;
+	        _highlightObject.GetComponent<MeshRenderer>().materials = mats;
+	        _highlightObject.AddComponent<MeshFilter>().sharedMesh = GetComponent<MeshFilter>().sharedMesh;
         }
 
         // stop highlighting an object when it no longer selected
         public void UnHighlight()
         {
-	        if (!highlighting) return;
-	        highlighting = false;
+	        if (!_highlighting) return;
+	        _highlighting = false;
 
-	        if (highlightObject != null)
+	        if (_highlightObject != null)
 	        {
-		        Destroy(highlightObject);
+		        Destroy(_highlightObject);
 	        }
         }
         

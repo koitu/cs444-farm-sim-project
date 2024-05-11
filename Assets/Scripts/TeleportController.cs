@@ -2,21 +2,21 @@ using UnityEngine;
 
 public class TeleportController : MonoBehaviour
 {
-	[Header("Maximum Distance")]
-	[Range(2f, 30f)]
+	[Header("Maximum Distance")] [Range(2f, 30f)]
 	// maximum distance the player can teleport to
 	public float maximumTeleportationDistance = 15f; // TODO
 
-	[Header("Marker")]
-	// Store the refence to the marker prefab used to highlight the targeted point
+	[Header("UI")]
+	// Store the reference to the marker prefab used to highlight the targeted point
 	public GameObject markerPrefab;
-
-	[Header("Fader")]
-	public OVRScreenFade screenFader;
 
 	[SerializeField]
 	private LineRenderer lineRenderer;
 
+	[SerializeField]
+	public ScreenFader screenFader;
+	
+	[Header("Properties")]
 	[SerializeField]
 	private HandController handController;
 
@@ -28,85 +28,88 @@ public class TeleportController : MonoBehaviour
 		_characterController = FindObjectOfType<CharacterController>();
 	}
 
-	private Ray ray;
-	private RaycastHit hit;
+	// private Ray _ray;
+	
+	private RaycastHit _hit;
+	private bool _hitValid;
+	private Vector3 _rayEndPosition;
 
-	private bool ray_hit;
-	private Vector3 ray_end_position;
-
-	private GameObject marker_prefab_instanciated;
+	private bool _markerCreated;
+	private GameObject _marker;
 
 	// Keep track of the teleportation state to prevent continuous teleportation
-	protected float lastTeleport = 0f;
-	protected bool lastActivatedRay;
+	private float _sinceLastTeleport = 0f;
 
 	private void activate_ray()
 	{
+		// TODO: add an option to make this a curve instead
 		// send out the ray
-		ray_hit = Physics.Raycast(
+		_hitValid = Physics.Raycast(
 			this.transform.position,
 			this.transform.forward,
-			out hit,
-			100);
+			out _hit,
+			maximumTeleportationDistance);
 
 		// check if the ray has collided with an object within the maximum distance
-		if (ray_hit && hit.distance <= maximumTeleportationDistance)
+		if (_hitValid && _hit.distance <= maximumTeleportationDistance)
 		{
 			// if ray does hit something change the color and draw the ray
-			ray_end_position = hit.point;
-			if (marker_prefab_instanciated == null)
+			_rayEndPosition = _hit.point;
+			
+			if (!_markerCreated)
 			{
-				marker_prefab_instanciated = GameObject.Instantiate(markerPrefab, this.transform);
+				_markerCreated = true;
+				_marker = Instantiate(markerPrefab, transform);
 			}
-			marker_prefab_instanciated.transform.position = ray_end_position;
+			_marker.transform.position = _rayEndPosition;
 		}
 		else
 		{
-			// if ray does not hit anything draw a ray that is of length 100
-			ray_end_position = this.transform.position + (this.transform.forward * 100);
+			// if ray does not hit anything draw a straight ray
+			_rayEndPosition = transform.position + (transform.forward * maximumTeleportationDistance);
+			
+			if (_markerCreated)
+			{
+				_markerCreated = false;
+				Destroy(_marker);
+			}
 		}
-
-		// add an option to make this a curve instead
-		lineRenderer.enabled = true;
-		lineRenderer.SetPosition(0, this.transform.position);
-		lineRenderer.SetPosition(1, ray_end_position);
 	}
 
 	private void Update()
 	{
-
 		if (handController.near_button_pressed())
 		{
             activate_ray();
+			lineRenderer.enabled = true;
+			lineRenderer.SetPosition(0, transform.position);
+			lineRenderer.SetPosition(1, _rayEndPosition);
 
-            if (handController.index_trigger_pressed() > 0.5 && Time.time - this.lastTeleport > 0.2f)
+            if (handController.index_trigger_pressed() > 0.5 &&
+                _sinceLastTeleport > 0.5f &&
+                _hitValid)
             {
-                if (!ray_hit)
-                {
-                    return;
-                }
-
-				this.screenFader.FadeOut();
-				_characterController.Move(ray_end_position - this.transform.position);
+				screenFader.FadeToBlack();
+				
+				_sinceLastTeleport = 0f;
+				_characterController.Move(_rayEndPosition - transform.position);
 				//character_controller.transform.position = new Vector3(ray_end_position.x, ray_end_position.y + 1.5f, ray_end_position.z);
-				this.lastTeleport = Time.time;
-				Debug.LogWarning("SHOULD BE TELEPORTING XDDLOL " + _characterController.transform.position);
-				this.screenFader.FadeIn();
+				// Debug.LogWarning("SHOULD BE TELEPORTING XDDLOL " + _characterController.transform.position);
+				
+				screenFader.FadeToClear();
             }
 		}
-
-		bool activated_ray = handController.near_button_pressed();
-		if (activated_ray == this.lastActivatedRay) return;
-		this.lastActivatedRay = activated_ray;
-
-		if (!activated_ray)
+		else
 		{
-			lineRenderer.enabled = false;
-			ray_hit = false;
+			if (_markerCreated)
+			{
+				_markerCreated = false;
+				Destroy(_marker);
+			}
 
-			if (marker_prefab_instanciated != null) Destroy(marker_prefab_instanciated);
-			marker_prefab_instanciated = null;
+			lineRenderer.enabled = false;
 		}
 
+		_sinceLastTeleport += Time.deltaTime;
 	}
 }

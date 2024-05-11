@@ -13,6 +13,7 @@ namespace Grab
 		// maximum distance the player can grab an object from
 		public float maximumGrabDistance = 15f;
 		
+		[Header("UI")]
 		// [Header("Non-match line appearance")]
 		[SerializeField]
 		// used when we have not made a match
@@ -28,6 +29,7 @@ namespace Grab
 		// used when we lock onto an object
 		public LineRenderer lockedLine;
 
+		[Header("Properties")]
 		[SerializeField]
 		// controller button presses helper
 		private HandController handController;
@@ -321,6 +323,8 @@ namespace Grab
 					}
 					else
 					{
+						_grabbable.body.useGravity = false;
+						_grabbable.body.freezeRotation = true;
 						_grabState = GrabState.Nothing;
 					}
 					
@@ -376,7 +380,7 @@ namespace Grab
 						_grabbable.body.isKinematic = false;
 						// _grabbable.body.velocity = PullInitialVelocity() + velocity;
 						_grabbable.body.velocity = PullInitialVelocity();
-						_grabbable.body.angularVelocity = PullInitialRotation();
+						_grabbable.body.angularVelocity = PullInitialRotation(); // TODO: does not work very well
 						// Debug.LogWarningFormat("velocity {0} rotation {1}", PullInitialVelocity(), PullInitialRotation());
 						_grabbable.UnHighlight();
 						_grabState = GrabState.Pulling;

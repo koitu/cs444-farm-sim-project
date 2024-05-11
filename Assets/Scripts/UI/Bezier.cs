@@ -2,7 +2,7 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace UI
 {
-    // used to draw quadratic and cubic Bezier curves
+    // used to draw quadratic and cubic Bézier curves
     // Wikipedia: https://en.wikipedia.org/wiki/B%C3%A9zier_curve
     // 2D version: https://github.com/wmcnamara/unity-bezier/blob/main/Assets/Bezier/Bezier.cs
     public class Bezier
