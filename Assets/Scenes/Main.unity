@@ -1530,7 +1530,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4905560163266528, guid: 20f6bd523ebdaf04fa332e6ce565fc03, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4905560163266528, guid: 20f6bd523ebdaf04fa332e6ce565fc03, type: 3}
       propertyPath: m_LocalScale.x
@@ -1698,7 +1698,7 @@ Transform:
   m_LocalScale: {x: 3.5, y: 18, z: 2}
   m_Children: []
   m_Father: {fileID: 1905779394}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &215966060
 BoxCollider:
@@ -4737,7 +4737,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4227045984723998, guid: ef5a38a28b01c9648bc93bc079f3a90b, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4227045984723998, guid: ef5a38a28b01c9648bc93bc079f3a90b, type: 3}
       propertyPath: m_LocalScale.x
@@ -5844,8 +5844,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maximumGrabDistance: 15
-  lineRenderer: {fileID: 939836646}
-  handController: {fileID: 939836649}
+  lookingLine: {fileID: 0}
+  matchingLine: {fileID: 0}
+  lockedLine: {fileID: 0}
+  handController: {fileID: 0}
+  grabbableLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  rangeGrabbableLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  velocityThreshold: 2
 --- !u!114 &939836649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5859,6 +5868,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handType: 1
+  playerController: {fileID: 0}
 --- !u!1001 &944150107
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5916,6 +5926,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 411954, guid: 89628d1fa4c1244408401deb6dcd80c5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6432540, guid: 89628d1fa4c1244408401deb6dcd80c5, type: 3}
+      propertyPath: m_Convex
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -8961,10 +8975,10 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1269052935}
+  - {fileID: 59543605}
   - {fileID: 1543647010}
   - {fileID: 2010056940}
-  - {fileID: 59543605}
+  - {fileID: 1269052935}
   m_Father: {fileID: 1526330268}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -9190,7 +9204,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4227045984723998, guid: ef5a38a28b01c9648bc93bc079f3a90b, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4227045984723998, guid: ef5a38a28b01c9648bc93bc079f3a90b, type: 3}
       propertyPath: m_LocalScale.x
@@ -9733,8 +9747,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maximumGrabDistance: 15
-  lineRenderer: {fileID: 1552047535}
-  handController: {fileID: 1552047538}
+  lookingLine: {fileID: 0}
+  matchingLine: {fileID: 0}
+  lockedLine: {fileID: 0}
+  handController: {fileID: 0}
+  grabbableLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  rangeGrabbableLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  velocityThreshold: 2
 --- !u!114 &1552047538
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9748,6 +9771,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handType: 0
+  playerController: {fileID: 0}
 --- !u!1001 &1554068029
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12291,8 +12315,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 182730851}
   - {fileID: 215966059}
+  - {fileID: 182730851}
   - {fileID: 968629494}
   m_Father: {fileID: 879941173}
   m_RootOrder: 1
