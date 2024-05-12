@@ -2,6 +2,7 @@ using System;
 using Grab;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
+using UnityEngine.Serialization;
 
 namespace Tiling
 {   
@@ -12,6 +13,8 @@ namespace Tiling
     // - One must have Collider.isTrigger enabled (this)
     // - One must contain a Rigidbody (kinematic is fine?)
     [RequireComponent(typeof(Collider))]
+    [RequireComponent(typeof(MeshFilter))]
+    [RequireComponent(typeof(MeshRenderer))]
     
     public class FarmLand : MonoBehaviour
     {
@@ -26,11 +29,13 @@ namespace Tiling
         [SerializeField]
         public Mesh progress100;
 
-        [SerializeField]
-        private MeshFilter _meshFilter;  // mesh shape
+        // [SerializeField]
+        [HideInInspector]
+        private MeshFilter meshFilter;  // mesh shape
         
-        [SerializeField]
-        private MeshRenderer _meshRenderer;  // mesh material
+        // [SerializeField]
+        [HideInInspector]
+        private MeshRenderer meshRenderer;  // mesh material
 
         private float _progress;
         private bool _planted;
@@ -38,14 +43,29 @@ namespace Tiling
         private Plant _plant;
         private Grabbable _grabbable;
 
+        private float _timePassed;
+            
         void Start()
         {
+            meshFilter = gameObject.GetComponent<MeshFilter>();
+            meshRenderer = gameObject.GetComponent<MeshRenderer>();
             gameObject.tag = "FarmLand";
         }
 
         private void FixedUpdate()
         {
             if (!_planted || _doneGrowing) return;
+            
+            if (_plant.isGrowing)
+            {
+                _timePassed += Time.deltaTime;
+                if (_timePassed > 0.5f)
+                {
+                    _plant.GrowingStep();
+                    // Debug.Log(this.plant.ToString());
+                    _timePassed = 0f;
+                }
+            }    
 
             if (_plant.GrowTimeLeft <= 0)
             {
@@ -110,7 +130,7 @@ namespace Tiling
                     _doneGrowing = false;
                     _planted = true;
                     _progress = 0f;
-                    _meshFilter.mesh = progress0;
+                    meshFilter.mesh = progress0;
                     break;
             }
         }
@@ -135,23 +155,23 @@ namespace Tiling
         {
             if (_progress == 0f)
             {
-                _meshFilter.mesh = progress0;
+                meshFilter.mesh = progress0;
             }
             else if (_progress < 0.25f)
             {
-                _meshFilter.mesh = progress25;
+                meshFilter.mesh = progress25;
             }
             else if (_progress < 0.5f)
             {
-                _meshFilter.mesh = progress50;
+                meshFilter.mesh = progress50;
             }
             else if (_progress < 0.75f)
             {
-                _meshFilter.mesh = progress75;
+                meshFilter.mesh = progress75;
             }
             else
             {
-                _meshFilter.mesh = progress100;
+                meshFilter.mesh = progress100;
             }
         }
     }

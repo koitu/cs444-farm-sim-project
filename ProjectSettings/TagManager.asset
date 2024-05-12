@@ -9,6 +9,7 @@ TagManager:
   - Container
   - FarmLand
   - Hoe
+  - Plant
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - UI
   - Grabbable
   - Grabbing
-  - Water
+  - 
   - 
   - 
   - 

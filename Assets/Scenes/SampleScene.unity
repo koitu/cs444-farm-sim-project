@@ -526,6 +526,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemsContained: []
+  boxCollider: {fileID: 0}
+  maximumColliderYSize: 0
+  stepIncrease: 0
 --- !u!65 &204569535
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1194,6 +1197,27 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3459061075014069343, guid: 94aa2ce6e73fb2a4ab6bca3a72fa9921, type: 3}
   m_PrefabInstance: {fileID: 1987280134}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &662429317 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5008442135825130599, guid: 77dfeea5775a05218920b08c0cefad58, type: 3}
+  m_PrefabInstance: {fileID: 5008442135164189410}
+  m_PrefabAsset: {fileID: 0}
+--- !u!54 &662429318
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 662429317}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!4 &678884717 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3459061075014069343, guid: 94aa2ce6e73fb2a4ab6bca3a72fa9921, type: 3}
@@ -3173,6 +3197,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemsContained: []
+  boxCollider: {fileID: 0}
+  maximumColliderYSize: 0
+  stepIncrease: 0
 --- !u!65 &1437258273
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4892,6 +4919,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4253527172671995998, guid: dd86bf264e7aed9e19a704f87c5c22eb, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4253527172672121215, guid: dd86bf264e7aed9e19a704f87c5c22eb, type: 3}
       propertyPath: m_Name
       value: HoePrefab
@@ -4913,6 +4944,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5008442135825130597, guid: 77dfeea5775a05218920b08c0cefad58, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5008442135825130599, guid: 77dfeea5775a05218920b08c0cefad58, type: 3}
       propertyPath: m_Name
       value: DirtMound
