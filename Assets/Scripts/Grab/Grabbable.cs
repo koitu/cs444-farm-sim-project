@@ -128,7 +128,8 @@ namespace Grab
 		        LayerMask.LayerToName(0), // default layer (will no longer interact with GrabController)
 		        GrabController.grabbableLayerName);
 	        
-	        body.isKinematic = false;
+	        // stay kinematic
+	        // body.isKinematic = false;
 	        body.transform.parent = _initialParent;
         }
 

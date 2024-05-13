@@ -56,6 +56,7 @@ public abstract class Plant : MonoBehaviour
 
     private void Start()
     {
+        gameObject.tag = "Plant";
         this.meshFilter = this.GetComponent<MeshFilter>();
         this.meshCollider = this.GetComponent<MeshCollider>();
     }

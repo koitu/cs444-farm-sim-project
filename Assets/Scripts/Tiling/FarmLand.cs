@@ -67,16 +67,17 @@ namespace Tiling
                 }
             }    
 
-            if (_plant.GrowTimeLeft <= 0)
+            if (!_plant.isGrowing) // not a very robust check
             {
                 _doneGrowing = true;
                 _grabbable.UnPlantObject(gameObject);
+                // TODO: for some reason unable to grab plant that has finished growing...
             }
         }
 
         private void OnTriggerEnter(Collider c)
         {
-            Debug.LogWarningFormat("entered collision with " + c.gameObject.name);
+            Debug.LogWarningFormat("entered collision with " + c.gameObject.name + " with tag " + c.gameObject.tag);
 
             switch (c.gameObject.tag)
             {
@@ -121,6 +122,7 @@ namespace Tiling
                     _grabbable = g;
                     _grabbable.PlantObject(gameObject);
                     _grabbable.body.position = transform.position;
+                    _grabbable.body.rotation = Quaternion.LookRotation(transform.forward, transform.up); // FromToRotation(_grabbable.transform.up, transform.up);
 
                     // make the plant start growing
                     _plant = c.gameObject.GetComponent<Plant>();
@@ -137,7 +139,7 @@ namespace Tiling
         
         private void OnTriggerExit(Collider c)
         {
-            Debug.LogWarningFormat("exited collision with " + c.gameObject.name);
+            Debug.LogWarningFormat("exited collision with " + c.gameObject.name + " with tag " + c.gameObject.tag);
             
             switch (c.gameObject.tag)
             {

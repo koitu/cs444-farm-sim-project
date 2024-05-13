@@ -44,4 +44,6 @@ public class HandController : MonoBehaviour
 		return OVRInput.Get(handType == HandType.LeftHand ?
 			OVRInput.RawButton.LThumbstick : OVRInput.RawButton.RThumbstick);
 	}
+	
+	// TODO: haptic feedback!!!
 }

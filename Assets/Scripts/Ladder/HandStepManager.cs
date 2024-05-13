@@ -47,13 +47,16 @@ public class HandStepManager : MonoBehaviour
 
     protected bool is_hand_closed()
     {
-        // Case of a left hand
-        if (this.handType == HandType.LeftHand) return
-            OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger) > 0.5;   // Check that the index finger is pressing
-
-        // Case of a right hand
-        else return
-            OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger) > 0.5; // Check that the index finger is pressing
+        // // Case of a left hand
+        // if (this.handType == HandType.LeftHand) return
+        //     OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger) > 0.5;   // Check that the index finger is pressing
+        //
+        // // Case of a right hand
+        // else return
+        //     OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger) > 0.5; // Check that the index finger is pressing
+        
+		return OVRInput.Get(handType == HandType.LeftHand ?
+			OVRInput.RawAxis1D.LIndexTrigger : OVRInput.RawAxis1D.RIndexTrigger) > 0.5;
     }   
 
 
@@ -72,8 +75,13 @@ public class HandStepManager : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         Debug.LogWarning(this.handType + " | CLOSE TO SOMETHING WITH TAG: " + other.gameObject.tag);
-        this.isCloseToStep = other.gameObject.tag == "LadderStep";
-        this.stepManager = other.GetComponent<StepManager>();
+        if (other.gameObject.tag == "LadderStep")
+        {
+            this.isCloseToStep = true;
+            this.stepManager = other.GetComponent<StepManager>();
+        }
+        // this.isCloseToStep = other.gameObject.tag == "LadderStep";
+        // this.stepManager = other.GetComponent<StepManager>();
     }
 
     private void OnTriggerExit(Collider other)
