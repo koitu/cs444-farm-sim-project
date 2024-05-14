@@ -26,7 +26,9 @@ public class LastStepTeleporter : MonoBehaviour
         {
             this.screenFader.FadeToBlack(1f);
             this.mainPlayerController.detachClimbingStep(this.mainPlayerController.climbingHand, false);
+            this.characterController.enabled = false;
             this.characterController.transform.position = teleportDestination;
+            this.characterController.enabled = true;
             this.mainPlayerController.bringBackGravity();
             this.screenFader.FadeToClear(1f);
         }

@@ -14,6 +14,7 @@ public class HandStepManager : MonoBehaviour
     public GameObject handAnchor;
 
     private List<GameObject> closeSteps;
+    private ClimbingCheatButton cheatButton;
     private bool is_previous_hand_closed;
     private StepManager stepManager;
 
@@ -26,8 +27,7 @@ public class HandStepManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-        if (this.closeSteps.Count == 0) return;
+        if (this.closeSteps.Count == 0 & this.cheatButton == null) return;
 
         bool hand_closed = is_hand_closed();
 
@@ -36,7 +36,8 @@ public class HandStepManager : MonoBehaviour
         this.is_previous_hand_closed = hand_closed;
         if (hand_closed)
         {
-            grabStep();
+            if (cheatButton) cheatButton.triggerCheat();
+            else grabStep();
         }
         else if (!hand_closed)
         {
@@ -73,25 +74,44 @@ public class HandStepManager : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.LogWarning(this.handType + " | CLOSE TO SOMETHING WITH TAG: " + other.gameObject.tag);
-        if (other.gameObject.tag == "LadderStep" && closeSteps.IndexOf(other.gameObject) == -1)
+        switch (other.gameObject.tag)
         {
+            case "LadderStep":
+                Debug.LogWarning(this.handType + " | OnTriggerEnter LadderStep");
+                if (closeSteps.IndexOf(other.gameObject) == -1)
+                {
             this.closeSteps.Add(other.gameObject);
             this.stepManager = other.GetComponent<StepManager>();
+                }
+                break;
+            case "LadderButton":
+                Debug.LogWarning(this.handType + " | OnTriggerEnter LadderButton");
+                this.cheatButton = other.gameObject.GetComponent<ClimbingCheatButton>();
+                Debug.LogWarning("Gathered cheatButton script " + this.cheatButton);
+                break;
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.LogWarning(this.handType + " | NOT CLOSE ANYMORE TO SOMETHING WITH TAG: " + other.gameObject.tag);
-        if (other.gameObject.tag == "LadderStep" && closeSteps.IndexOf(other.gameObject) != -1)
+        switch (other.gameObject.tag)
         {
-            this.closeSteps.Remove(other.gameObject);
-            if (other.GetComponent<StepManager>() == this.stepManager)
-            {
-                releaseStep();
-                this.stepManager = null;
-            }
+            case "LadderStep":
+                Debug.LogWarning(this.handType + " | OnTriggerExit LadderStep");
+                if (closeSteps.IndexOf(other.gameObject) != -1)
+                {
+                    this.closeSteps.Remove(other.gameObject);
+                    if (other.GetComponent<StepManager>() == this.stepManager)
+                    {
+                        releaseStep();
+                        this.stepManager = null;
+                    }
+                }
+                break;
+            case "LadderButton":
+                Debug.LogWarning(this.handType + " | OnTriggerExit LadderButton");
+                this.cheatButton = null;
+                break;
         }
     }
 }

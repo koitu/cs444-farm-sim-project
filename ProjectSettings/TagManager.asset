@@ -10,6 +10,7 @@ TagManager:
   - FarmLand
   - Hoe
   - Plant
+  - LadderButton
   layers:
   - Default
   - TransparentFX

@@ -92,6 +92,10 @@ public class CauldronManager : MonoBehaviour
             Debug.Log("NOT CONSUMING SEEDS");
             returnArray.Add(this.plant1);
             returnArray.Add(this.plant2);
+        } else
+        {
+            this.plant1.Destroy();
+            this.plant2.Destroy();
         }
 
         return returnArray;
@@ -130,5 +134,11 @@ public class CauldronManager : MonoBehaviour
                 StartCoroutine(InstantiateObjects(this.result));
             }
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawSphere(resultPosition, 0.3f);
     }
 }
