@@ -49,7 +49,9 @@ namespace Tiling
         {
             meshFilter = gameObject.GetComponent<MeshFilter>();
             meshRenderer = gameObject.GetComponent<MeshRenderer>();
+            
             gameObject.tag = "FarmLand";
+            gameObject.layer = LayerMask.NameToLayer("Environment"); // ensure range grab can go through farmland
         }
 
         private void FixedUpdate()
@@ -122,7 +124,13 @@ namespace Tiling
                     _grabbable = g;
                     _grabbable.PlantObject(gameObject);
                     _grabbable.body.position = transform.position;
-                    _grabbable.body.rotation = Quaternion.LookRotation(transform.forward, transform.up); // FromToRotation(_grabbable.transform.up, transform.up);
+                    // _grabbable.body.rotation = Quaternion.LookRotation(transform.forward, transform.up); // FromToRotation(_grabbable.transform.up, transform.up);
+                    // _grabbable.body.rotation = Quaternion.FromToRotation(Vector3.up, )
+                    _grabbable.body.rotation = Quaternion.AngleAxis(
+                        -Vector3.Angle(transform.up, Vector3.up),
+                        Vector3.Cross(transform.up, Vector3.up).normalized);
+                    // transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal) * transform.rotation;
+                    // transform.rotation = Quaternion.LookRotation(end - origin, hit.normal);
 
                     // make the plant start growing
                     _plant = c.gameObject.GetComponent<Plant>();

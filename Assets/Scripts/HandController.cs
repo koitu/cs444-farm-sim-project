@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 // Boilerplate code for interactions that want to use controller button presses
@@ -9,6 +10,7 @@ public class HandController : MonoBehaviour
 	[Header( "Hand Properties" )]
 	public HandType handType;
 	
+	private bool _vibrating;
 
 	// get how much index trigger is activated
 	internal float index_trigger_pressed()
@@ -44,6 +46,35 @@ public class HandController : MonoBehaviour
 		return OVRInput.Get(handType == HandType.LeftHand ?
 			OVRInput.RawButton.LThumbstick : OVRInput.RawButton.RThumbstick);
 	}
+
+	private IEnumerator PerformVibration(float duration)
+	{
+		_vibrating = true;
+		OVRInput.SetControllerVibration(1, 1,
+			handType == HandType.LeftHand ? OVRInput.Controller.LTouch : OVRInput.Controller.RTouch);
+
+		yield return new WaitForSecondsRealtime(duration);
+		
+		OVRInput.SetControllerVibration(0, 0,
+			handType == HandType.LeftHand ? OVRInput.Controller.LTouch : OVRInput.Controller.RTouch);
+		_vibrating = false;
+	}
+
+	internal void short_vibrate()
+	{
+		if (_vibrating) return;
+		StartCoroutine(PerformVibration(0.1f));
+	}
 	
-	// TODO: haptic feedback!!!
+	internal void medium_vibrate()
+	{
+		if (_vibrating) return;
+		StartCoroutine(PerformVibration(0.3f));
+	}
+	
+	internal void long_vibrate()
+	{
+		if (_vibrating) return;
+		StartCoroutine(PerformVibration(0.9f));
+	}
 }

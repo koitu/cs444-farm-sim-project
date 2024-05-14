@@ -77,6 +77,7 @@ namespace Grab
         public void GrabObject(GrabController grabController)
         {
 	        body.isKinematic = true;
+	        body.constraints = RigidbodyConstraints.None;
 	        body.transform.parent = grabController.transform.parent;
 	        
 	        SetLayers(
@@ -129,7 +130,9 @@ namespace Grab
 		        GrabController.grabbableLayerName);
 	        
 	        // stay kinematic
-	        body.isKinematic = false;  // <-- THIS WAS COMMENTED, WHY?
+	        body.isKinematic = false;
+	        // body.constraints = RigidbodyConstraints.FreezePosition;
+	        body.useGravity = false;
             body.transform.parent = _initialParent;
         }
 

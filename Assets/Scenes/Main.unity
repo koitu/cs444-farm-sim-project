@@ -20156,7 +20156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   graspingRadius: 0.3
   throwable: 1
-  highlightMaterial: {fileID: 2100000, guid: a439cfb9369c1404d9db2e5580667b14, type: 2}
+  highlightMaterial: {fileID: 0}
   body: {fileID: 0}
 --- !u!135 &1683848034
 SphereCollider:
@@ -22977,7 +22977,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   graspingRadius: 0.3
   throwable: 1
-  highlightMaterial: {fileID: 2100000, guid: a439cfb9369c1404d9db2e5580667b14, type: 2}
+  highlightMaterial: {fileID: 0}
   body: {fileID: 0}
 --- !u!1 &1973897258
 GameObject:

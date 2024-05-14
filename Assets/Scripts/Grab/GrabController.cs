@@ -5,6 +5,7 @@ using Quaternion = UnityEngine.Quaternion;
 
 namespace Grab
 {
+	[RequireComponent(typeof(HandController))]
 	public class GrabController : MonoBehaviour
 	{
 		// Config Begin ========================
@@ -29,10 +30,10 @@ namespace Grab
 		// used when we lock onto an object
 		public LineRenderer lockedLine;
 
-		[Header("Properties")]
-		[SerializeField]
+		// [Header("Properties")]
+		// [SerializeField]
 		// controller button presses helper
-		private HandController handController;
+		private HandController _handController;
 		
 		// Config End ========================
 		
@@ -78,6 +79,8 @@ namespace Grab
 		
 		private void Start()
 		{
+			_handController = GetComponent<HandController>();
+			
 			// if image is being held we only want it be grabbable by the other hand
 			// also the range grab should not interact with the held object
 			grabbableLayers = LayerMask.GetMask(grabbableLayerName, grabbingLayerName);
@@ -238,6 +241,7 @@ namespace Grab
 			Holding, // currently holding an object
 			Pulling, // pulling in an object
 			Locked, // locked onto an object
+			Matched, // matched with an object
 			Looking, // looking for an object
 			Nothing
 		}
@@ -271,12 +275,14 @@ namespace Grab
 			switch (_grabState)
 			{
 				case GrabState.Holding:
+					_handController.short_vibrate();
+					
 					// if holding an object then continue to hold it
-					if (handController.index_trigger_pressed() > 0.5) break;
+					if (_handController.index_trigger_pressed() > 0.5) break;
 					
 					// if no longer holding an object then release it
 					_grabbable.ReleaseObject(this);
-					if (handController.hand_trigger_pressed() > 0.5)
+					if (_handController.hand_trigger_pressed() > 0.5)
 					{
 						RangeSearchForMatches();
 						if (_hitValid)
@@ -296,8 +302,10 @@ namespace Grab
 					break;
 				
 				case GrabState.Pulling:
+					_handController.medium_vibrate();
+					
 					// maintain current state
-					if (handController.index_trigger_pressed() > 0.5)
+					if (_handController.index_trigger_pressed() > 0.5)
 					{
 						// TODO: https://docs.unity3d.com/ScriptReference/Collider.ClosestPointOnBounds.html
 						if (Vector3.Distance(
@@ -373,11 +381,14 @@ namespace Grab
 				// 	break;
 
 				case GrabState.Locked:
+					_handController.short_vibrate();
+					
 					// upgrade to pulling: make a large enough movement
 					if (velocity.magnitude > velocityThreshold)
 					{
 						_pullingLockoutTime = PullingConstTime;  // time for object to be pulled
 						_grabbable.body.isKinematic = false;
+						_grabbable.body.useGravity = true; // make sure to turn gravity for _plants_ ON
 						// _grabbable.body.velocity = PullInitialVelocity() + velocity;
 						_grabbable.body.velocity = PullInitialVelocity();
 						_grabbable.body.angularVelocity = PullInitialRotation(); // TODO: does not work very well
@@ -389,7 +400,7 @@ namespace Grab
 					}
 					
 					// maintain current state
-					if (handController.index_trigger_pressed() > 0.5)
+					if (_handController.index_trigger_pressed() > 0.5)
 					{
 						DrawLocked();
 					}
@@ -402,46 +413,64 @@ namespace Grab
 					}
 					break;
 				
-				case GrabState.Looking:
-					// upgrade to locked: press index trigger while beam found a match
-					if (handController.index_trigger_pressed() > 0.5)
+				case GrabState.Matched:
+					_handController.short_vibrate();
+					
+					// maintain state
+					if (_handController.hand_trigger_pressed() > 0.5)
 					{
-						// // not changing state so need to check for holding
-						// if (!_holdingIdxTrigger)
-						// {
-						// 	_holdingIdxTrigger = true;
-						// 	
-						
 						// check range search for matches, if so then lock on
-						if (_hitValid)
-						{
-							_grabbable = _hit.rigidbody.gameObject.GetComponent<Grabbable>();
-							_grabbable.body.isKinematic = true;
-							_grabbable.Highlight();
-							_grabState = GrabState.Locked;
-							DrawLocked();
-							break;
-						}
-						
-						// }
-					}
-					else
-					{
-						_holdingIdxTrigger = false;
-					}
-
-					// maintain current state
-					if (handController.hand_trigger_pressed() > 0.5)
-					{
 						RangeSearchForMatches();
 						if (_hitValid)
 						{
+							Grabbable new_g = _hit.rigidbody.gameObject.GetComponent<Grabbable>();
+							if (new_g != _grabbable)
+							{
+								_grabbable.UnHighlight();
+							}
+
+							_grabbable = new_g;
+							_grabbable.Highlight();
 							DrawMatch();
 						}
 						else
 						{
+							_grabbable.UnHighlight();
+							_grabState = GrabState.Looking;
 							DrawLooking();
+							break;
 						}
+					}
+					else
+					{
+						_grabbable.UnHighlight();
+						_grabState = GrabState.Nothing;
+						ClearDrawing();
+						break;
+					}
+
+					// upgrade to locked: press index trigger with a matched object
+					if (_handController.index_trigger_pressed() > 0.5)
+					{
+						_grabbable.body.isKinematic = true;
+						_grabState = GrabState.Locked;
+						DrawLocked();
+					}
+					break;
+				
+				case GrabState.Looking:
+					// upgrade to matched: press hand trigger and find a match
+					if (_handController.hand_trigger_pressed() > 0.5)
+					{
+						RangeSearchForMatches();
+						if (_hitValid)
+						{
+							_grabState = GrabState.Matched;
+							DrawMatch();
+							break;
+						}
+						
+						DrawLooking();
 					}
 					else
 					{
@@ -451,8 +480,8 @@ namespace Grab
 					break;
 				
 				case GrabState.Nothing:
-					// upgrade to holding: press index trigger while near object that can be grabbed
-					if (handController.index_trigger_pressed() > 0.5)
+                    // upgrade to holding: press index trigger while near object that can be grabbed
+					if (_handController.index_trigger_pressed() > 0.5)
 					{	
 						// not changing state so need to check for holding
 						if (!_holdingIdxTrigger)
@@ -466,7 +495,6 @@ namespace Grab
 								_grabbable = _col.gameObject.GetComponent<Grabbable>();
 								_grabbable.GrabObject(this);
 								_grabState = GrabState.Holding;
-								ClearDrawing();
 								break;
 							}
 						}
@@ -477,18 +505,20 @@ namespace Grab
 					}
 					
 					// upgrade to looking: press hand trigger
-					if (handController.hand_trigger_pressed() > 0.5)
+					// upgrade to matched: press hand trigger and have an match
+					if (_handController.hand_trigger_pressed() > 0.5)
 					{
 						RangeSearchForMatches();
 						if (_hitValid)
 						{
+							_grabState = GrabState.Matched;
 							DrawMatch();
 						}
 						else
 						{
+							_grabState = GrabState.Looking;
 							DrawLooking();
 						}
-						_grabState = GrabState.Looking;
 					}
 					break;
 			}
@@ -501,7 +531,7 @@ namespace Grab
 
 		private bool IsOccluded(Vector3 start, Vector3 direction, Collider target)
 		{
-			// range grab should not be occluded by held items
+			// range grab should only be occluded by default layers and other range grabbable items
 			return !Physics.Raycast(
 				       start,
 				       direction,
