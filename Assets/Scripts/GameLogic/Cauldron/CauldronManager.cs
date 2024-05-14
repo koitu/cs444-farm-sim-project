@@ -17,8 +17,10 @@ public class CauldronManager : MonoBehaviour
     private int breedTimeLeft = 0;
 
     public bool isBreeding = false;
-
     public bool consumeSeeds = true;
+
+    public Plant onion;
+    public Vector3 resultPosition;
 
     public bool isFree()
     {
@@ -35,6 +37,7 @@ public class CauldronManager : MonoBehaviour
         if (this.plant2 == null)
         {
             this.plant2 = plant;
+            startBreed();
             return 0;    
         }
         return 1;
@@ -50,6 +53,23 @@ public class CauldronManager : MonoBehaviour
         this.particles.Play();
         this.breedTimeLeft = Random.Range(this.breedTimeMin, this.breedTimeMax);
         Debug.Log("Starting Breeding between " + this.plant1.PlantName + " & " + this.plant2.PlantName + " with time: " + this.breedTimeLeft);
+    }
+
+    IEnumerator InstantiateObjects(List<Plant> plants)
+    {
+        Instantiate(result[0], resultPosition, Quaternion.identity);
+        yield return new WaitForSeconds(1f);
+        
+        if (result.Count > 1)
+        {
+            result[1].transform.position = resultPosition;
+            result[1].transform.rotation = Quaternion.identity;
+            yield return new WaitForSeconds(1f);
+
+            result[2].transform.position = resultPosition;
+            result[2].transform.rotation = Quaternion.identity;
+            yield return new WaitForSeconds(1f);
+        }
     }
 
     public List<Plant> endBreed()
@@ -69,6 +89,7 @@ public class CauldronManager : MonoBehaviour
 
         if (!this.consumeSeeds)
         {
+            Debug.Log("NOT CONSUMING SEEDS");
             returnArray.Add(this.plant1);
             returnArray.Add(this.plant2);
         }
@@ -76,17 +97,24 @@ public class CauldronManager : MonoBehaviour
         return returnArray;
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("OnTriggerEnter with tag " + other.gameObject.tag);
+        if (other.gameObject.tag != "Plant") return;
+        
+        if (isFree())
+        {
+            assignPlant(other.GetComponent<Plant>());
+        }
+    }
+
     float timePassed = 0f;
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.B))
         {
-            this.plant1 = this.possiblePlantResults[Random.Range(0, this.possiblePlantResults.Length)];
-            this.plant2 = this.possiblePlantResults[Random.Range(0, this.possiblePlantResults.Length)];
-            this.startBreed();
+            Plant breedingPlant1 = Instantiate(onion, new Vector3(transform.position.x, transform.position.y + 1.5f, transform.position.z), Quaternion.identity, transform.parent);
         }
-
 
         if (!this.isBreeding) return;
         
@@ -99,12 +127,7 @@ public class CauldronManager : MonoBehaviour
             if (this.breedTimeLeft == 0)
             {
                 this.result = this.endBreed();
-                Debug.Log("Breeding process finished! Breeding result:");
-                for (int i = 0 ; i < this.result.Count; i++)
-                {
-                    Debug.Log(" - " + i + ". " + this.result[i].PlantName);
-                }
-                Debug.Log("");
+                StartCoroutine(InstantiateObjects(this.result));
             }
         }
     }

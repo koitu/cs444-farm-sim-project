@@ -24,7 +24,7 @@ public class FieldSlotManager : MonoBehaviour
         if (this.plant && this.plant.isGrowing)
         {
             timePassed += Time.deltaTime;
-            if (timePassed > 0.5f)
+            if (timePassed > 1f)
             {
                 this.plant.GrowingStep();
                 Debug.Log(this.plant.ToString());

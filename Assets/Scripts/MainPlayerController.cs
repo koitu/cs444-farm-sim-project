@@ -15,10 +15,14 @@ public class MainPlayerController : MonoBehaviour
     private float initialGravity;
     private Vector3 previousGrabPosition;
 
+    private LastStepTeleporter[] lastStepTeleporters;
+
     private void Start()
     {
         Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
         this.initialGravity = this.OVRPlayerController.GravityModifier;
+        lastStepTeleporters = GetComponents<LastStepTeleporter>();
+        enableLastStepTeleporters(false);
     }
 
     private void Update()
@@ -45,6 +49,7 @@ public class MainPlayerController : MonoBehaviour
         this.OVRPlayerController.GravityModifier = 0;
         
         this.climbingHand = handStepManager;
+        enableLastStepTeleporters(true);
         Debug.LogWarning("MainPlayerController got attached");
     }
 
@@ -56,6 +61,7 @@ public class MainPlayerController : MonoBehaviour
             {
                 this.OVRPlayerController.GravityModifier = this.initialGravity;
             }
+            enableLastStepTeleporters(false);
             this.climbingHand = null;
             Debug.LogWarning("MainPlayerController got detached");
         }
@@ -64,5 +70,13 @@ public class MainPlayerController : MonoBehaviour
     public void bringBackGravity()
     {
         this.OVRPlayerController.GravityModifier = this.initialGravity;
+    }
+
+    public void enableLastStepTeleporters(bool enable)
+    {
+        foreach (LastStepTeleporter element in lastStepTeleporters)
+        {
+            element.enabled = enable;
+        }
     }
 }

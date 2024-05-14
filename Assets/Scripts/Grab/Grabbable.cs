@@ -123,14 +123,14 @@ namespace Grab
 
 	        _planted = false;
 	        _plantedBy = null;
-	        
-	        SetLayers(
+
+			SetLayers(
 		        LayerMask.LayerToName(0), // default layer (will no longer interact with GrabController)
 		        GrabController.grabbableLayerName);
 	        
 	        // stay kinematic
-	        // body.isKinematic = false;
-	        body.transform.parent = _initialParent;
+	        body.isKinematic = false;  // <-- THIS WAS COMMENTED, WHY?
+            body.transform.parent = _initialParent;
         }
 
         public Vector3 GetVelocity()

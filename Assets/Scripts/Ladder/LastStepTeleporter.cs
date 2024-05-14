@@ -5,11 +5,13 @@ using UnityEngine;
 public class LastStepTeleporter : MonoBehaviour
 {
 
-    public Vector3 teleportOffset;
+    public Vector3 teleportDestination;
 
     private ScreenFader screenFader;
     private CharacterController characterController;
     private MainPlayerController mainPlayerController;
+
+    public float gizmosSize = 0.3f;
 
     private void Start()
     {
@@ -22,15 +24,17 @@ public class LastStepTeleporter : MonoBehaviour
     {
         if (this.mainPlayerController.climbingHand != null)
         {
-            Debug.LogWarning("HELLO:)");
             this.screenFader.FadeToBlack(1f);
             this.mainPlayerController.detachClimbingStep(this.mainPlayerController.climbingHand, false);
-            Debug.LogWarning("PREVIOUS POSITION:" + this.characterController.transform.position);
-            this.characterController.Move(this.teleportOffset); //transform.position += this.teleportOffset;
-            Debug.LogWarning("POSTERIOR POSITION:" + this.characterController.transform.position);
+            this.characterController.transform.position = teleportDestination;
             this.mainPlayerController.bringBackGravity();
             this.screenFader.FadeToClear(1f);
-            Debug.LogWarning("BYEE :(");
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawCube(teleportDestination, new Vector3(gizmosSize, gizmosSize, gizmosSize));
     }
 }

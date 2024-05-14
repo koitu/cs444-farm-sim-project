@@ -4,6 +4,15 @@ using UnityEngine;
 
 public abstract class Plant : MonoBehaviour
 {
+    public enum MeshNames {
+        L_Stage,
+        M_Stage,
+        S_Stage,
+        Seed,
+        Default,
+        Group
+    }
+
     public Mesh GrowthStage_L;
     public Mesh GrowthStage_M;
     public Mesh GrowthStage_S;
@@ -30,6 +39,7 @@ public abstract class Plant : MonoBehaviour
     {
         this.GrowTimeLeft = this.GrowTime;
         this.isGrowing = true;
+        this.meshCollider.enabled = false;
     }
     
     public virtual void GrowingStep()
@@ -44,8 +54,45 @@ public abstract class Plant : MonoBehaviour
                 this.stageN++;
             } else
             {
+                this.meshCollider.enabled = true;
                 this.stageN = maxStageN;
             }
+        }
+    }
+
+    public virtual void Destroy()
+    {
+        Destroy(gameObject);
+    }
+
+    public virtual void SetMesh(MeshNames meshType)
+    {
+        switch(meshType) {
+            case MeshNames.Group:
+                this.meshFilter.mesh = this.Group;
+                this.meshCollider.sharedMesh = this.Group;
+                break;
+            case MeshNames.Seed:
+                this.meshFilter.mesh = this.Seed;
+                this.meshCollider.sharedMesh = this.Seed;
+                break;
+            case MeshNames.S_Stage:
+                this.meshFilter.mesh = this.GrowthStage_S;
+                this.meshCollider.sharedMesh = this.GrowthStage_S;
+                break;
+            case MeshNames.M_Stage:
+                this.meshFilter.mesh = this.GrowthStage_M;
+                this.meshCollider.sharedMesh = this.GrowthStage_M;
+                break;
+            case MeshNames.L_Stage:
+                this.meshFilter.mesh = this.GrowthStage_L;
+                this.meshCollider.sharedMesh = this.GrowthStage_L;
+                break;
+            default:
+                this.meshFilter.mesh = this.Default;
+                this.meshCollider.sharedMesh = this.Default;
+                break;
+
         }
     }
 
@@ -68,24 +115,26 @@ public abstract class Plant : MonoBehaviour
             switch (stageN)
             {
                 case 0:
-                    this.meshFilter.mesh = this.Seed;
-                    this.meshCollider.sharedMesh = this.Seed;
+                    SetMesh(MeshNames.Seed);
                     break;
                 case 1:
-                    
+                    SetMesh(MeshNames.S_Stage);
                     this.meshFilter.mesh = this.GrowthStage_S;
                     this.meshCollider.sharedMesh = this.GrowthStage_S;
                     break;
                 case 2:
+                    SetMesh(MeshNames.M_Stage);
                     this.meshFilter.mesh = this.GrowthStage_M;
                     this.meshCollider.sharedMesh = this.GrowthStage_M;
                     break;
                 case 3:
+                    SetMesh(MeshNames.L_Stage);
                     this.meshFilter.mesh = this.GrowthStage_L;
                     this.meshCollider.sharedMesh = this.GrowthStage_L;
                     this.isGrowing = false;
                     break;
                 default:
+                    SetMesh(MeshNames.Default);
                     this.meshFilter.mesh = this.Default;
                     this.meshCollider.sharedMesh = this.Default;
                     break;

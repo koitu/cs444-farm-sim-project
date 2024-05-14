@@ -13,7 +13,7 @@ public class HandStepManager : MonoBehaviour
     public MainPlayerController playerController;
     public GameObject handAnchor;
 
-    private bool isCloseToStep;
+    private List<GameObject> closeSteps;
     private bool is_previous_hand_closed;
     private StepManager stepManager;
 
@@ -26,14 +26,12 @@ public class HandStepManager : MonoBehaviour
     void Update()
     {
         
-        if (!this.isCloseToStep) return;
-
+        if (this.closeSteps.Count == 0) return;
 
         bool hand_closed = is_hand_closed();
 
         if (hand_closed == this.is_previous_hand_closed) return;
         
-        // If it's here it's because something changed
         this.is_previous_hand_closed = hand_closed;
         if (hand_closed)
         {
@@ -75,21 +73,19 @@ public class HandStepManager : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         Debug.LogWarning(this.handType + " | CLOSE TO SOMETHING WITH TAG: " + other.gameObject.tag);
-        if (other.gameObject.tag == "LadderStep")
+        if (other.gameObject.tag == "LadderStep" && closeSteps.IndexOf(other.gameObject) == -1)
         {
-            this.isCloseToStep = true;
+            this.closeSteps.Add(other.gameObject);
             this.stepManager = other.GetComponent<StepManager>();
         }
-        // this.isCloseToStep = other.gameObject.tag == "LadderStep";
-        // this.stepManager = other.GetComponent<StepManager>();
     }
 
     private void OnTriggerExit(Collider other)
     {
         Debug.LogWarning(this.handType + " | NOT CLOSE ANYMORE TO SOMETHING WITH TAG: " + other.gameObject.tag);
-        if (other.gameObject.tag == "LadderStep")
+        if (other.gameObject.tag == "LadderStep" && closeSteps.IndexOf(other.gameObject) != -1)
         {
-            this.isCloseToStep = false;
+            this.closeSteps.Remove(other.gameObject);
             if (other.GetComponent<StepManager>() == this.stepManager)
             {
                 releaseStep();

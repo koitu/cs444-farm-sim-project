@@ -13,11 +13,12 @@ GameObject:
   - component: {fileID: 5012317322255439119}
   - component: {fileID: 1489031374279372978}
   - component: {fileID: 1700190632129428442}
-  - component: {fileID: 5567147642265039501}
+  - component: {fileID: 5513998025697776791}
+  - component: {fileID: 2461278360144864954}
   - component: {fileID: 7583795465284073600}
   m_Layer: 0
   m_Name: Plant
-  m_TagString: Untagged
+  m_TagString: Plant
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -112,7 +113,23 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
---- !u!114 &5567147642265039501
+--- !u!54 &5513998025697776791
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3437693659446188225}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &2461278360144864954
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -121,12 +138,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 3437693659446188225}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57ef644bfa7ac8c47a6f906a7ad32312, type: 3}
+  m_Script: {fileID: 11500000, guid: bcb46783a3ac488dae015fc952e58cc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   graspingRadius: 0.2
-  throwable: 0
-  grabbed: 0
+  throwable: 1
+  highlightMaterial: {fileID: 0}
+  body: {fileID: 0}
 --- !u!114 &7583795465284073600
 MonoBehaviour:
   m_ObjectHideFlags: 0

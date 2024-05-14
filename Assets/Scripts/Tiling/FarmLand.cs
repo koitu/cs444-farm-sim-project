@@ -59,7 +59,7 @@ namespace Tiling
             if (_plant.isGrowing)
             {
                 _timePassed += Time.deltaTime;
-                if (_timePassed > 0.5f)
+                if (_timePassed > 1f)
                 {
                     _plant.GrowingStep();
                     // Debug.Log(this.plant.ToString());
@@ -114,7 +114,7 @@ namespace Tiling
                     Grabbable g = c.gameObject.GetComponent<Grabbable>();
                     if (_planted || _progress < 1f)
                     {
-                        _grabbable.body.velocity *= -1;
+                        g.body.velocity *= -1;
                         break;
                     }
                     
