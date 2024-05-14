@@ -20,6 +20,7 @@ public class HandStepManager : MonoBehaviour
     private void Start()
     { 
         this.playerController = FindObjectOfType<MainPlayerController>();
+        this.closeSteps = new List<GameObject>();
     }
 
     // Update is called once per frame
