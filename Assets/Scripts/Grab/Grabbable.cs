@@ -19,6 +19,9 @@ namespace Grab
 
         [HideInInspector]
         public Rigidbody body;
+        
+        [HideInInspector]
+        public Collider coll;
 
 		// store the grab controller this object will be attached to
         private bool _held;
@@ -41,6 +44,7 @@ namespace Grab
         private void Start()
         {
 	        body = GetComponent<Rigidbody>();
+	        coll = GetComponent<Collider>();
             gameObject.layer = LayerMask.NameToLayer(GrabController.grabbableLayerName);
 			_initialParent = transform.parent;
         }
@@ -101,7 +105,7 @@ namespace Grab
 	        
 	        body.isKinematic = false;
 	        body.transform.parent = _initialParent;
-	        body.velocity = GetVelocity();
+	        body.velocity = GetVelocity() * 0.7f;
 	        body.angularVelocity = GetRotation();
         }
 

@@ -1,13 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(HandController))]
+
 public class HandStepManager : MonoBehaviour
 {
-    public enum HandType : int { LeftHand, RightHand };
-    [Header("Hand Properties")]
-    public HandType handType;
-
     // Store the player controller to forward it to the object
     [Header("Player Controller")]
     public MainPlayerController playerController;
@@ -18,8 +15,11 @@ public class HandStepManager : MonoBehaviour
     private bool is_previous_hand_closed;
     private StepManager stepManager;
 
+    private HandController _handController;
+
     private void Start()
-    { 
+    {
+        _handController = GetComponent<HandController>();
         this.playerController = FindObjectOfType<MainPlayerController>();
         this.closeSteps = new List<GameObject>();
     }
@@ -29,15 +29,23 @@ public class HandStepManager : MonoBehaviour
     {
         if (this.closeSteps.Count == 0 & this.cheatButton == null) return;
 
-        bool hand_closed = is_hand_closed();
+        bool hand_closed = _handController.index_trigger_pressed() > 0.5;
 
         if (hand_closed == this.is_previous_hand_closed) return;
         
         this.is_previous_hand_closed = hand_closed;
         if (hand_closed)
         {
-            if (cheatButton) cheatButton.triggerCheat();
-            else grabStep();
+            if (cheatButton)
+            {
+                _handController.medium_vibrate();
+                cheatButton.triggerCheat();
+            }
+            else
+            {
+                _handController.short_vibrate();
+                grabStep();
+            }
         }
         else if (!hand_closed)
         {
@@ -45,30 +53,15 @@ public class HandStepManager : MonoBehaviour
         }
     }
 
-    protected bool is_hand_closed()
-    {
-        // // Case of a left hand
-        // if (this.handType == HandType.LeftHand) return
-        //     OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger) > 0.5;   // Check that the index finger is pressing
-        //
-        // // Case of a right hand
-        // else return
-        //     OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger) > 0.5; // Check that the index finger is pressing
-        
-		return OVRInput.Get(handType == HandType.LeftHand ?
-			OVRInput.RawAxis1D.LIndexTrigger : OVRInput.RawAxis1D.RIndexTrigger) > 0.5;
-    }   
-
-
     public void grabStep()
     {
-        Debug.LogWarning(this.handType + " | HandStepManager STARTING grabbing");
+        Debug.LogWarning(_handController.handType + " | HandStepManager STARTING grabbing");
         this.playerController.attachClimbingStep(this);
     }
 
     public void releaseStep()
     {
-        Debug.LogWarning(this.handType + " | HandStepManager RELEASED grabbing");
+        Debug.LogWarning(_handController.handType + " | HandStepManager RELEASED grabbing");
         this.playerController.detachClimbingStep(this);
     }
 
@@ -77,15 +70,18 @@ public class HandStepManager : MonoBehaviour
         switch (other.gameObject.tag)
         {
             case "LadderStep":
-                Debug.LogWarning(this.handType + " | OnTriggerEnter LadderStep");
+                Debug.LogWarning(_handController.handType + " | OnTriggerEnter LadderStep");
+                _handController.short_vibrate();
                 if (closeSteps.IndexOf(other.gameObject) == -1)
                 {
-            this.closeSteps.Add(other.gameObject);
-            this.stepManager = other.GetComponent<StepManager>();
+                    this.closeSteps.Add(other.gameObject);
+                    this.stepManager = other.GetComponent<StepManager>();
                 }
                 break;
+            
             case "LadderButton":
-                Debug.LogWarning(this.handType + " | OnTriggerEnter LadderButton");
+                Debug.LogWarning(_handController.handType + " | OnTriggerEnter LadderButton");
+                _handController.short_vibrate();
                 this.cheatButton = other.gameObject.GetComponent<ClimbingCheatButton>();
                 Debug.LogWarning("Gathered cheatButton script " + this.cheatButton);
                 break;
@@ -97,7 +93,7 @@ public class HandStepManager : MonoBehaviour
         switch (other.gameObject.tag)
         {
             case "LadderStep":
-                Debug.LogWarning(this.handType + " | OnTriggerExit LadderStep");
+                Debug.LogWarning(_handController.handType + " | OnTriggerExit LadderStep");
                 if (closeSteps.IndexOf(other.gameObject) != -1)
                 {
                     this.closeSteps.Remove(other.gameObject);
@@ -109,7 +105,7 @@ public class HandStepManager : MonoBehaviour
                 }
                 break;
             case "LadderButton":
-                Debug.LogWarning(this.handType + " | OnTriggerExit LadderButton");
+                Debug.LogWarning(_handController.handType + " | OnTriggerExit LadderButton");
                 this.cheatButton = null;
                 break;
         }

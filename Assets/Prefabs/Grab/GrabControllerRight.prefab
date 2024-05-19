@@ -94,7 +94,7 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 0.619622, b: 0.015686274, a: 0}
+      key0: {r: 1, g: 0.619622, b: 0.015686274, a: 1}
       key1: {r: 1, g: 0.619622, b: 0.015686274, a: 1}
       key2: {r: 0.10195545, g: 0.3289249, b: 0.9339623, a: 1}
       key3: {r: 0.10195545, g: 0.3289249, b: 0.9339623, a: 1}
@@ -455,7 +455,6 @@ MonoBehaviour:
   lookingLine: {fileID: 621166307520004387}
   matchingLine: {fileID: 8143887466076641781}
   lockedLine: {fileID: 5128650851537970641}
-  handController: {fileID: 5497482334287724460}
   grabbableLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -492,8 +491,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maximumTeleportationDistance: 15
   markerPrefab: {fileID: 6984496144424113020, guid: f6280ede11a45e5418036ee0171a99dd, type: 3}
-  screenFader: {fileID: 0}
   lineRenderer: {fileID: 1656388130466880757}
+  screenFader: {fileID: 0}
   handController: {fileID: 5497482334287724460}
 --- !u!135 &7848944921050488217
 SphereCollider:
