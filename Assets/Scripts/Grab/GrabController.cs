@@ -74,8 +74,12 @@ namespace Grab
 		
 		// other parameters
 		private const int CurveSamples = 256;  // amount of samples to use when drawing curve
-		private const float PullingConstTime = 0.8f;  // approx time for object to be pulled in
-		public float velocityThreshold = 2;  // velocity threshold of user to activate pull
+		private const float LongPullingConstTime = 0.8f;  // approx time for farther object to be pulled in
+		private const float ShortPullingConstTime = 0.3f;  // approx time for nearby object to be pulled in
+		private const float ShortPullingThreshold = 3f; // distance within an object is considered nearby
+		private const float VelocityThreshold = 2f;  // velocity threshold to activate pull
+		private const float RotationThreshold = 3f;  // rotation threshold to activate pull
+		private const float AngleThreshold = 60f; // angle threshold to activate pull
 		
 		private void Start()
 		{
@@ -170,30 +174,6 @@ namespace Grab
 			}
 		}
 		
-		private void PullingSearchForMatch()
-		{
-			int colNum = Physics.OverlapSphereNonAlloc(
-				transform.position,
-				SphereOverlapRadius,
-				_sphereOverlapHits,
-				grabbableLayers);
-			
-			_colValid = false;
-
-			for (int i = 0; i < colNum; i++)
-			{
-				Collider cur = _sphereOverlapHits[i];
-				
-				if (cur.attachedRigidbody != _grabbable.body) continue;
-				
-				float dst = Vector3.Distance(transform.position, _grabbable.transform.position);
-				if (_grabbable.get_grasping_radius() < dst) break;
-
-				_colValid = true;
-			}
-		}
-		
-		
 		// // Compute the velocity for the object to come to you (constant angle with variable speed and time)
 		// // Half Life Alyx distance grab: https://www.youtube.com/watch?v=WU23Uj1oeh8
 		// public Vector3 PullInitialVelocity()
@@ -216,7 +196,7 @@ namespace Grab
 		// }
 
 		// compute the velocity for an object to come to you (constant time with variable speed and angle)
-		public Vector3 PullInitialVelocity()
+		public Vector3 PullInitialVelocity(float pulltime)
 		{
 			Vector3 d = transform.position - _grabbable.transform.position;
 			Vector3 dXZ = new Vector3(d.x, 0, d.z);
@@ -224,24 +204,24 @@ namespace Grab
 			float dYLen = d.y;
 
 			float angle = Mathf.Atan2(
-				2 * dYLen - Physics.gravity.y * Mathf.Pow(PullingConstTime, 2),
+				2 * dYLen - Physics.gravity.y * Mathf.Pow(pulltime, 2),
 				2 * dXZLen);
 
 			// Debug.LogWarningFormat("angle {0}", angle);
-			float speed = dXZLen / (PullingConstTime * Mathf.Cos(angle));
+			float speed = dXZLen / (pulltime * Mathf.Cos(angle));
 
 			return dXZ.normalized * (Mathf.Cos(angle) * speed) +
 			       Vector3.up * (Mathf.Sin(angle) * speed);
 		}
 
-		public Vector3 PullInitialRotation()
+		public Vector3 PullInitialRotation(float pulltime)
 		{
 			Quaternion q = Quaternion.FromToRotation(_grabbable.transform.up, transform.up);
 			q.ToAngleAxis(out float angle, out Vector3 axis);
 
 			// the angular velocity vector of the rigidbody measured in radians per second:
 			// _grabbable.body.angularVelocity
-			return axis.normalized * (angle * Mathf.Deg2Rad) / (PullingConstTime - 0.1f);
+			return axis.normalized * (angle * Mathf.Deg2Rad) / (pulltime - 0.1f);
 		}
 
 		enum GrabState
@@ -278,7 +258,12 @@ namespace Grab
 			// - what line should we be drawing
 			// - what kind of haptic feedback do we need
 			// - what kind of settings we have in the current state that need to be undone
+			
+			// TODO: clean up these calculations as we are redoing stuff done in some methods
 			Vector3 velocity = (transform.position - _prevPosition) / Time.deltaTime;
+			Quaternion deltaRot = transform.rotation * Quaternion.Inverse(_prevRotation);
+	        deltaRot.ToAngleAxis(out float angle, out Vector3 axis);
+	        Vector3 rotation = axis * (angle * Mathf.Deg2Rad);
 			
 			switch (_grabState)
 			{
@@ -312,11 +297,9 @@ namespace Grab
 					// maintain current state
 					if (_handController.index_trigger_pressed() > 0.5)
 					{
-						// TODO: https://docs.unity3d.com/ScriptReference/Collider.ClosestPointOnBounds.html
 						if (Vector3.Distance(
 							    transform.position, 
 								_grabbable.coll.ClosestPoint(transform.position)) < 0.1f)
-							    // _grabbable.transform.position) < 0.2f)
 						{
 							// when the object comes close enough then attach it to the controller
 							_grabbable.body.useGravity = true;
@@ -349,47 +332,6 @@ namespace Grab
 					
 					_pullingLockoutTime -= Time.deltaTime;
 					break;
-					
-				//  // alternate pulling method that requires the player to grab the object out of the air
-				// case GrabState.Pulling:
-				// 	// // TODO: if direction of velocity is somewhat pointed to us (i.e. within some angle) then allow some course correction
-				// 	// // we also need to consider the effect of gravity...
-				// 	// Vector3 angleOfAttack = (_grabbable.transform.position - transform.position).normalized;
-				// 	// float angle = Vector3.Angle(angleOfAttack, _grabbable.body.velocity.normalized);
-				// 	
-				// 	// the only thing that changes over the course of the flight is the vertical velocity
-				// 	// we can use PullInitialVelcotiy and modify the y velocity based on how much time has passed
-				// 	// to get the velocity that it would be needed to take to get to the hand (however we are already partially on a different trajecotiry)
-				//
-				// 	// upgrade to holding: press the index trigger near the object we are pulling in
-				// 	if (handController.index_trigger_pressed() > 0.5)
-				// 	{
-				// 		// not changing state so need to check for holding
-				// 		if (_holdingIdxTrigger) break;
-				// 		_holdingIdxTrigger = true;
-				//
-				// 		// only check for the object we are pulling in
-				// 		PullingSearchForMatch();
-				// 		if (_colValid)
-				// 		{
-				// 			_grabbable.GrabObject(this);
-				// 			_grabState = GrabState.Holding;
-				// 			break;
-				// 		}
-				// 	}
-				// 	else
-				// 	{
-				// 		_holdingIdxTrigger = false;
-				// 	}
-				//
-				// 	// maintain current state until lockout time is over
-				// 	if (_pullingLockoutTime < 0)
-				// 	{
-				// 		_grabState = GrabState.Nothing;
-				// 		break;
-				// 	}
-				// 	_pullingLockoutTime -= Time.deltaTime;
-				// 	break;
 
 				case GrabState.Locked:
 					// - drawing: DrawLocked, Highlight
@@ -397,14 +339,17 @@ namespace Grab
 					// - setting: set locked objected to kinematic
 					
 					// upgrade to pulling: make a large enough movement
-					if (velocity.magnitude > velocityThreshold)
+					if (velocity.magnitude > VelocityThreshold ||
+					    rotation.magnitude > RotationThreshold ||
+					    Vector3.Angle(transform.forward, (_grabbable.transform.position - transform.position).normalized) > AngleThreshold)
+						
 					{
-						_pullingLockoutTime = PullingConstTime;  // time for object to be pulled
+						_pullingLockoutTime = 
+							Vector3.Distance(transform.position, _grabbable.transform.position) > ShortPullingThreshold ?
+								LongPullingConstTime : ShortPullingConstTime;  // time for object to be pulled
 						_grabbable.body.isKinematic = false;
-						_grabbable.body.useGravity = true; // make sure to turn gravity for _plants_ ON
-						_grabbable.body.velocity = PullInitialVelocity();
-						_grabbable.body.angularVelocity = PullInitialRotation(); // TODO: does not work very well
-						// Debug.LogWarningFormat("velocity {0} rotation {1}", PullInitialVelocity(), PullInitialRotation());
+						_grabbable.body.velocity = PullInitialVelocity(_pullingLockoutTime);
+						_grabbable.body.angularVelocity = PullInitialRotation(_pullingLockoutTime);
 						
 						_grabbable.UnHighlight();
 						_grabState = GrabState.Pulling;
@@ -644,3 +589,68 @@ namespace Grab
 		}
 	}
 }
+
+//  // alternate pulling method that requires the player to grab the object out of the air
+// case GrabState.Pulling:
+// 	// // we also need to consider the effect of gravity...
+// 	// Vector3 angleOfAttack = (_grabbable.transform.position - transform.position).normalized;
+// 	// float angle = Vector3.Angle(angleOfAttack, _grabbable.body.velocity.normalized);
+// 	
+// 	// the only thing that changes over the course of the flight is the vertical velocity
+// 	// we can use PullInitialVelcotiy and modify the y velocity based on how much time has passed
+// 	// to get the velocity that it would be needed to take to get to the hand (however we are already partially on a different trajecotiry)
+//
+// 	// upgrade to holding: press the index trigger near the object we are pulling in
+// 	if (handController.index_trigger_pressed() > 0.5)
+// 	{
+// 		// not changing state so need to check for holding
+// 		if (_holdingIdxTrigger) break;
+// 		_holdingIdxTrigger = true;
+//
+// 		// only check for the object we are pulling in
+// 		PullingSearchForMatch();
+// 		if (_colValid)
+// 		{
+// 			_grabbable.GrabObject(this);
+// 			_grabState = GrabState.Holding;
+// 			break;
+// 		}
+// 	}
+// 	else
+// 	{
+// 		_holdingIdxTrigger = false;
+// 	}
+//
+// 	// maintain current state until lockout time is over
+// 	if (_pullingLockoutTime < 0)
+// 	{
+// 		_grabState = GrabState.Nothing;
+// 		break;
+// 	}
+// 	_pullingLockoutTime -= Time.deltaTime;
+// 	break;
+
+// private void PullingSearchForMatch()
+// {
+// 	int colNum = Physics.OverlapSphereNonAlloc(
+// 		transform.position,
+// 		SphereOverlapRadius,
+// 		_sphereOverlapHits,
+// 		grabbableLayers);
+// 	
+// 	_colValid = false;
+//
+// 	for (int i = 0; i < colNum; i++)
+// 	{
+// 		Collider cur = _sphereOverlapHits[i];
+// 		
+// 		if (cur.attachedRigidbody != _grabbable.body) continue;
+// 		
+// 		float dst = Vector3.Distance(transform.position, _grabbable.transform.position);
+// 		if (_grabbable.get_grasping_radius() < dst) break;
+//
+// 		_colValid = true;
+// 	}
+// }
+		
+		

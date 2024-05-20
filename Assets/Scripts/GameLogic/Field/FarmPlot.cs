@@ -2,6 +2,7 @@ using System;
 using GameLogic.Plants;
 using Grab;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace GameLogic.Field
 {   
@@ -30,21 +31,19 @@ namespace GameLogic.Field
 
         public AudioSource audioSource;
 
-        // [SerializeField]
-        [HideInInspector]
-        private MeshFilter meshFilter;  // mesh shape
-        
-        // [SerializeField]
-        [HideInInspector]
+        private MeshFilter _meshFilter;  // mesh shape
         private MeshRenderer meshRenderer;  // mesh material
 
         private float _progress;
-        private bool _planted;
+        
+        private int _numPlant;
+        private bool _doneGrowing;
         private Plant _plant;
+        private Plant _extraPlant;
 
         void Start()
         {
-            meshFilter = gameObject.GetComponent<MeshFilter>();
+            _meshFilter = gameObject.GetComponent<MeshFilter>();
             meshRenderer = gameObject.GetComponent<MeshRenderer>();
             
             gameObject.tag = "FarmLand";
@@ -59,7 +58,7 @@ namespace GameLogic.Field
             switch (c.gameObject.tag)
             {
                 case "Hoe":
-                    if (_planted || _progress > 1f) break;
+                    if (_numPlant > 0 || _progress > 1f) break;
 
                     this.audioSource.Play();
                     Grabbable hoe = c.gameObject.GetComponent<Grabbable>();
@@ -90,23 +89,63 @@ namespace GameLogic.Field
                     break;
                 
                 case "Plant":
-                    if (_planted || _progress < 1f)
+                    if (_numPlant > 0 || _progress < 1f)
                     {
-                        c.attachedRigidbody.velocity *= -1.5f; // bounce the plant away
+                        // only reject plants that are traveling down
+                        // previous issues:
+                        // - plant that just finished growing is rejected
+                        // - when pulling a grown plant it is rejected (velocity is reset)
+                        Plant plant = c.gameObject.GetComponent<Plant>();
+                        if (plant == _plant ||
+                            plant == _extraPlant ||
+                            plant.Body.velocity.y > 0f) break;
+                        
+                        // reject the plant if there is already a plant or the ground is not tiled enough
+                        Vector3 direction = Random.insideUnitSphere;
+                        direction.y = 1; // about 45 degrees
+                        
+                        c.attachedRigidbody.rotation = Quaternion.LookRotation(direction);
+                        c.attachedRigidbody.velocity = direction * 1.8f;
                         // TODO: play a rejection noise
-                        break;
                     }
-
-                    // by setting plant to start growing it will plant itself in the plot
-                    _plant = c.gameObject.GetComponent<Plant>();
-                    _plant.StartGrowing(this);
-                    
-                    // set planted to true and reset digging progress
-                    _planted = true;
-                    _progress = 0f;
-                    meshFilter.mesh = progress0;
+                    else
+                    {
+                        // accept the plant
+                        c.attachedRigidbody.isKinematic = true; // this will be unset when grab the object
+                        c.transform.position = transform.position;
+                        c.transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+                        
+                        _plant = c.gameObject.GetComponent<Plant>();
+                        
+                        // set the plant to ignore grabbing and start growing
+                        _plant.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+                        _plant.Body.detectCollisions = false;
+                        _plant.StartGrowing(this);
+                        
+                        // set planted to true and reset digging progress
+                        _numPlant = 1;
+                        _doneGrowing = false;
+                        _progress = 0f;
+                        _meshFilter.mesh = progress0;
+                    }
                     break;
             }
+        }
+
+        internal void PlantDoneGrowingCallback()
+        {
+            _extraPlant = Instantiate(
+                _plant,
+                transform.position,
+                transform.rotation,
+                transform.parent);
+            
+            _extraPlant.Body.isKinematic = true;
+            _extraPlant.gameObject.layer = LayerMask.NameToLayer("Grabbable");
+
+            // set done growing to true to all us to dig out plants
+            _numPlant = 2;
+            _doneGrowing = true;
         }
         
         private void OnTriggerExit(Collider c)
@@ -119,7 +158,32 @@ namespace GameLogic.Field
                     break;
                 
                 case "Plant":
-                    _planted = false;
+                    // setting the position of a plant will cause it trigger exit and enter
+                    // so we wait until we are sure we are done growing
+                    if (!_doneGrowing) break;
+
+                    Plant plant = c.gameObject.GetComponent<Plant>();
+                    if (_numPlant == 2)
+                    {
+                        if (_extraPlant == plant)
+                        {
+                            _extraPlant = null;
+                            _numPlant = 1;
+                            
+                            _plant.ResetPlant();
+                            _plant.Body.detectCollisions = true;
+                            _plant.gameObject.layer = LayerMask.NameToLayer("Grabbable");
+                        }
+                    }
+                    else if(_numPlant == 1)
+                    {
+                        if (_plant == plant)
+                        {
+                            _plant = null;
+                            _numPlant = 0;
+                            _doneGrowing = false;
+                        }
+                    }
                     break;
             }
         }
@@ -128,27 +192,27 @@ namespace GameLogic.Field
         {
             if (_progress == 0f)
             {
-                meshFilter.mesh = progress0;
+                _meshFilter.mesh = progress0;
             }
             else if (_progress < 0.25f)
             {
-                meshFilter.mesh = progress25;
+                _meshFilter.mesh = progress25;
             }
             else if (_progress < 0.5f)
             {
-                meshFilter.mesh = progress50;
+                _meshFilter.mesh = progress50;
             }
             else if (_progress < 0.75f)
             {
-                meshFilter.mesh = progress75;
+                _meshFilter.mesh = progress75;
             }
             else
             {
-                meshFilter.mesh = progress100;
+                _meshFilter.mesh = progress100;
             }
         }
 
-        public void setProgress(float newProgress)
+        public void SetProgress(float newProgress)
         {
             this._progress = newProgress;
             this.UpdateSoil();

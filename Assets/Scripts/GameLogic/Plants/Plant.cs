@@ -13,7 +13,7 @@ namespace GameLogic.Plants
         // for all plants there are always 4 stages
         public GameObject[] plantStages = new GameObject[4];
         
-        private Rigidbody _body;
+        internal Rigidbody Body;
         private FarmPlot _plot;
 
         private int _stageIdx;
@@ -25,8 +25,6 @@ namespace GameLogic.Plants
         private float _timePassed;
         [HideInInspector]
         public bool growing;
-        [HideInInspector]
-        public bool grown;
 
         public string PlantName { get; protected set; }
         public int StageGrowTime { get; protected set; }
@@ -34,13 +32,27 @@ namespace GameLogic.Plants
 
         public abstract void Breed(Plant partner);
 
-        private void Start()
+        public void Awake()
         {
+            // Instantiate does not copy variables and we cannot wait until the next frame to call Start
             gameObject.tag = "Plant";
-            _body = GetComponent<Rigidbody>();
-            
+            Body = GetComponent<Rigidbody>();
+            ResetPlant();
+        }
+
+        internal void ResetPlant()
+        {
             _stageIdx = 0;
             _stageObj = plantStages[0];
+            _stageObj.SetActive(true);
+            for (int i = 1; i <= MaxStage; i++)
+            {
+                plantStages[i].SetActive(false);
+            }
+        }
+
+        private void Start()
+        {
             _audioSource = GetComponent<AudioSource>();
         }
 
@@ -48,12 +60,9 @@ namespace GameLogic.Plants
         {
             _plot = plot;
             
-            // _meshCollider.enabled = false;
-            // _grabbable.PlantObject(_plot.gameObject);
             gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
-	        _body.isKinematic = true;
+	        Body.isKinematic = true;
             growing = true;
-            grown = false;
             
             _stageIdx = 0;
             _stageObj.SetActive(false); // make the plant invisible when first planted
@@ -83,49 +92,10 @@ namespace GameLogic.Plants
             // we are done growing
             if (_stageIdx == MaxStage)
             {
-                // _meshCollider.enabled = true;
-                // _grabbable.UnPlantObject(_plot.gameObject);
-                gameObject.layer = LayerMask.NameToLayer("Grabbable");
-                _body.isKinematic = false;
                 growing = false;
-                grown = true;
-                
-                // create an instance of this plant int he initial form
-                // make this current plant ungrabbbable and make the duplicate grabbable
-                // when the duplicate is grabbed then convert this back to the initial form
+                _plot.PlantDoneGrowingCallback();
             }
         }
-   //      public void PlantObject(GameObject go)
-   //      {
-	  //       body.isKinematic = true;
-	  //       body.transform.parent = go.transform.parent;
-	  //       
-	  //       SetLayers(
-		 //        GrabController.grabbableLayerName,
-		 //        LayerMask.LayerToName(0)); // default layer (will no longer interact with GrabController)
-   //
-	  //       _planted = true;
-	  //       _plantedBy = go;
-			// Debug.LogWarningFormat("the plant has been planted");
-   //      }
-        
-   //      public void UnPlantObject(GameObject go)
-   //      {
-	  //       if (go != _plantedBy) return;
-   //
-	  //       _planted = false;
-	  //       _plantedBy = null;
-   //
-			// SetLayers(
-		 //        LayerMask.LayerToName(0), // default layer (will no longer interact with GrabController)
-		 //        GrabController.grabbableLayerName);
-	  //       
-	  //       body.useGravity = false;
-	  //       body.isKinematic = false;
-   //          body.transform.parent = _initialParent;
-			// Debug.LogWarningFormat("the plant has been unplanted");
-   //      }
-
 
         private void FixedUpdate()
         {

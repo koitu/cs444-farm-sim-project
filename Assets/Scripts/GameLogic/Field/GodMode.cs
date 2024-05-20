@@ -14,7 +14,7 @@ public class GodMode : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.H))
         {
-            this.farmPlot.setProgress(1f);
+            this.farmPlot.SetProgress(1f);
         }
 
         if (Input.GetKeyDown(KeyCode.S)){

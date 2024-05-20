@@ -105,21 +105,21 @@ namespace Grab
 	        
 	        body.isKinematic = false;
 	        body.transform.parent = _initialParent;
-	        body.velocity = GetVelocity() * 0.7f;
+	        body.velocity = GetVelocity();
 	        body.angularVelocity = GetRotation();
         }
 
         public Vector3 GetVelocity()
         {
 			float deltaPos = Vector3.Distance(_prevPosition, transform.position) / Time.fixedDeltaTime;
-			return (transform.position - _prevPosition).normalized * (deltaPos * 1.2f);
+			return (transform.position - _prevPosition).normalized * deltaPos;
         }
 
         public Vector3 GetRotation()
         {
 	        Quaternion deltaRot = transform.rotation * Quaternion.Inverse(_prevRotation);
 	        deltaRot.ToAngleAxis(out float angle, out Vector3 axis);
-	        return (axis / Time.fixedDeltaTime) * (angle * Mathf.Deg2Rad) / 1.2f;
+	        return (axis / Time.fixedDeltaTime) * (angle * Mathf.Deg2Rad);
         }
 
         // highlight an object when it is selected
