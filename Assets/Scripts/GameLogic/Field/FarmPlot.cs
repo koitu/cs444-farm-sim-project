@@ -28,6 +28,8 @@ namespace GameLogic.Field
         [SerializeField]
         public Mesh progress100;
 
+        public AudioSource audioSource;
+
         // [SerializeField]
         [HideInInspector]
         private MeshFilter meshFilter;  // mesh shape
@@ -59,6 +61,7 @@ namespace GameLogic.Field
                 case "Hoe":
                     if (_planted || _progress > 1f) break;
 
+                    this.audioSource.Play();
                     Grabbable hoe = c.gameObject.GetComponent<Grabbable>();
                     float rot = hoe.GetRotation().magnitude;
                     
@@ -143,6 +146,12 @@ namespace GameLogic.Field
             {
                 meshFilter.mesh = progress100;
             }
+        }
+
+        public void setProgress(float newProgress)
+        {
+            this._progress = newProgress;
+            this.UpdateSoil();
         }
     }
 }

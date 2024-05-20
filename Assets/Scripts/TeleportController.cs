@@ -21,12 +21,15 @@ public class TeleportController : MonoBehaviour
 	[SerializeField]
 	private HandController handController;
 
+	private AudioSource audioSource;
+
 	// Retrieve the character controller used later to move the player in the environment
 	private CharacterController _characterController;
 
 	void Start()
 	{
 		_characterController = FindObjectOfType<CharacterController>();
+		audioSource = GetComponent<AudioSource>();
 	}
 
 	// private Ray _ray;
@@ -90,6 +93,7 @@ public class TeleportController : MonoBehaviour
 			    _sinceLastTeleport > 0.5f &&
 			    _hitValid)
 			{
+				audioSource.Play();
 				screenFader.FadeToBlack();
 				
 				_sinceLastTeleport = 0f;

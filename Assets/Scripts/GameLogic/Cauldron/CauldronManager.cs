@@ -25,27 +25,48 @@ namespace GameLogic.Cauldron
         public Plant onion;
         public Vector3 resultPosition;
 
-        public bool isFree()
+        public AudioSource audioSource;
+
+
+        /**
+         * Checks if there is space for breeding in the cauldron.
+         */
+        public bool IsFree()
         {
             return !plant1 || !plant2;
         }
 
+        /**
+         * Assigns a plant to the available slot if there is one.
+         * In case there isn't, it pushes the plant away.
+         */
         public int assignPlant(Plant plant)
         {
             if (this.plant1 == null)
             {
+                Debug.Log("Assignign plant 1");
                 this.plant1 = plant;
                 return 0;
             }
             if (this.plant2 == null)
             {
+                Debug.Log("Assignign plant 2");
                 this.plant2 = plant;
                 startBreed();
-                return 0;    
+                return 0;
             }
+            Debug.Log("Throwing away the plant");
+            Vector3 throwingVector = new Vector3(Random.Range(-1f, 1f), 2, Random.Range(-1f, 1f));
+            float throwStrength = 5;
+            Vector3 force = throwingVector.normalized * throwStrength;
+
+            plant.GetComponent<Rigidbody>().AddForce(force, ForceMode.Impulse);
             return 1;
         }
 
+        /**
+         * Calling this starts the breeding process in case it wasn't started already.
+         */
         public void startBreed()
         {
             if (this.isBreeding)
@@ -55,9 +76,13 @@ namespace GameLogic.Cauldron
             this.isBreeding = true;
             this.particles.Play();
             this.breedTimeLeft = Random.Range(this.breedTimeMin, this.breedTimeMax);
+            this.audioSource.Play();
             Debug.Log("Starting Breeding between " + this.plant1.PlantName + " & " + this.plant2.PlantName + " with time: " + this.breedTimeLeft);
         }
 
+        /**
+         * Auxiliar function to instantiate the result plants.
+         */
         IEnumerator InstantiateObjects(List<Plant> plants)
         {
             Instantiate(result[0], resultPosition, Quaternion.identity);
@@ -67,18 +92,24 @@ namespace GameLogic.Cauldron
             {
                 result[1].transform.position = resultPosition;
                 result[1].transform.rotation = Quaternion.identity;
+                this.plant1 = null;
                 yield return new WaitForSeconds(1f);
 
                 result[2].transform.position = resultPosition;
                 result[2].transform.rotation = Quaternion.identity;
+                this.plant2 = null;
                 yield return new WaitForSeconds(1f);
             }
         }
 
+        /**
+         * Ends the breeding process and returns the list of result plants.
+         */
         public List<Plant> endBreed()
         {
             this.isBreeding = false;
             this.particles.Stop();
+            this.audioSource.Stop();
 
             this.breedTimeLeft = 0;
             if (this.possiblePlantResults == null || this.possiblePlantResults.Length == 0)
@@ -104,14 +135,20 @@ namespace GameLogic.Cauldron
             return returnArray;
         }
 
+        /**
+         * Detects and stores when a plant enters the cauldron.
+         */
         private void OnTriggerEnter(Collider other)
         {
             Debug.Log("OnTriggerEnter with tag " + other.gameObject.tag);
             if (!other.gameObject.CompareTag("Plant")) return;
         
-            if (isFree())
+            if (other.GetComponent<Plant>())
             {
                 assignPlant(other.GetComponent<Plant>());
+            } else
+            {
+                other.transform.position = this.resultPosition;
             }
         }
 
@@ -129,7 +166,7 @@ namespace GameLogic.Cauldron
             if (timePassed > 1f)
             {
                 this.breedTimeLeft--;
-                Debug.Log("Breeding step done, time left: " + this.breedTimeLeft);
+                //Debug.Log("Breeding step done, time left: " + this.breedTimeLeft);
                 timePassed = 0f;
                 if (this.breedTimeLeft == 0)
                 {

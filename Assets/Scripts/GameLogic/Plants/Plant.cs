@@ -6,6 +6,7 @@ namespace GameLogic.Plants
 {
     [RequireComponent(typeof(Collider))]
     [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(AudioSource))]
     
     public abstract class Plant : MonoBehaviour
     {
@@ -18,6 +19,8 @@ namespace GameLogic.Plants
         private int _stageIdx;
         private GameObject _stageObj;
         private const int MaxStage = 3;
+
+        private AudioSource _audioSource;
 
         private float _timePassed;
         [HideInInspector]
@@ -38,6 +41,7 @@ namespace GameLogic.Plants
             
             _stageIdx = 0;
             _stageObj = plantStages[0];
+            _audioSource = GetComponent<AudioSource>();
         }
 
         public void StartGrowing(FarmPlot plot)
@@ -66,6 +70,7 @@ namespace GameLogic.Plants
 
             if (StageGrowTimeLeft > 0) return;
             StageGrowTimeLeft = StageGrowTime;
+            this._audioSource.Play();
 
             if (_stageIdx < MaxStage)
             {

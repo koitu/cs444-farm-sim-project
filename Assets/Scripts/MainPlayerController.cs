@@ -13,6 +13,9 @@ public class MainPlayerController : MonoBehaviour
     private float initialGravity;
     private Vector3 previousGrabPosition;
 
+    private AudioSource audioSource;
+    public AudioClip[] stepSound;
+
     private LastStepTeleporter[] lastStepTeleporters;
 
     private void Start()
@@ -20,6 +23,7 @@ public class MainPlayerController : MonoBehaviour
         Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
         this.initialGravity = this.OVRPlayerController.GravityModifier;
         lastStepTeleporters = GetComponents<LastStepTeleporter>();
+        this.audioSource = this.climbingHand.GetComponent<AudioSource>();
         enableLastStepTeleporters(false);
     }
 
@@ -28,7 +32,16 @@ public class MainPlayerController : MonoBehaviour
         if (this.climbingHand == null)
         {
             return;
-        } 
+        }
+
+        if (this.characterController.velocity.normalized.magnitude > 0.1f)
+        {
+            if (!this.audioSource.isPlaying)
+            {
+                this.audioSource.clip = this.stepSound[Random.Range(0, this.stepSound.Length)];
+                this.audioSource.Play();
+            }
+        }
          
         // Calculate the offset in position from when the grab started
         Vector3 currentOffset = this.climbingHand.transform.position - this.previousGrabPosition;
