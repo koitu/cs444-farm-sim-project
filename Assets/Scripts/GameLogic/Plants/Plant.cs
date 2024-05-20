@@ -89,6 +89,10 @@ namespace GameLogic.Plants
                 _body.isKinematic = false;
                 growing = false;
                 grown = true;
+                
+                // create an instance of this plant int he initial form
+                // make this current plant ungrabbbable and make the duplicate grabbable
+                // when the duplicate is grabbed then convert this back to the initial form
             }
         }
    //      public void PlantObject(GameObject go)
