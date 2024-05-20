@@ -1,4 +1,5 @@
 using UnityEngine;
+using Utils;
 
 public class TeleportController : MonoBehaviour
 {
@@ -80,15 +81,15 @@ public class TeleportController : MonoBehaviour
 	{
 		if (handController.near_button_pressed())
 		{
-            activate_ray();
+			activate_ray();
 			lineRenderer.enabled = true;
 			lineRenderer.SetPosition(0, transform.position);
 			lineRenderer.SetPosition(1, _rayEndPosition);
 
-            if (handController.index_trigger_pressed() > 0.5 &&
-                _sinceLastTeleport > 0.5f &&
-                _hitValid)
-            {
+			if (handController.index_trigger_pressed() > 0.5 &&
+			    _sinceLastTeleport > 0.5f &&
+			    _hitValid)
+			{
 				screenFader.FadeToBlack();
 				
 				_sinceLastTeleport = 0f;
@@ -97,7 +98,7 @@ public class TeleportController : MonoBehaviour
 				// Debug.LogWarning("SHOULD BE TELEPORTING XDDLOL " + _characterController.transform.position);
 				
 				screenFader.FadeToClear();
-            }
+			}
 		}
 		else
 		{

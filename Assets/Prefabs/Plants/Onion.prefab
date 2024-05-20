@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db215fa205f987040a1cb9f123f8e283, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GrowthStage_L: {fileID: 4300000, guid: de9b4a235dc6deb47b37b73480eeb917, type: 3}
-  GrowthStage_M: {fileID: 4300000, guid: 3ee4ebb7d9e392b4c8aba97ce16e9ac6, type: 3}
-  GrowthStage_S: {fileID: 4300000, guid: 97eec3123c9c3e8408b2d9a2d5fcada0, type: 3}
-  Seed: {fileID: 0}
-  Default: {fileID: 4300000, guid: 3a0454732436b8044953ef5902fe05fe, type: 3}
-  Group: {fileID: 4300000, guid: 0e654982eee4e9a42a94403001ff2b52, type: 3}
-  isGrowing: 0
+  growthStageL: {fileID: 4300000, guid: de9b4a235dc6deb47b37b73480eeb917, type: 3}
+  growthStageM: {fileID: 4300000, guid: 3ee4ebb7d9e392b4c8aba97ce16e9ac6, type: 3}
+  growthStageS: {fileID: 4300000, guid: 97eec3123c9c3e8408b2d9a2d5fcada0, type: 3}
+  seed: {fileID: 0}
+  defaultStage: {fileID: 4300000, guid: 3a0454732436b8044953ef5902fe05fe, type: 3}
+  group: {fileID: 4300000, guid: 0e654982eee4e9a42a94403001ff2b52, type: 3}
+  growing: 0
+  grown: 0
 --- !u!1001 &1672453241420838252
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -94,7 +95,8 @@ PrefabInstance:
       propertyPath: interfacePlant.component
       value: 
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1141732209880746245, guid: 046850573709efc4bad6fedba2fc520e, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 046850573709efc4bad6fedba2fc520e, type: 3}
 --- !u!1 &4071425001896668589 stripped
 GameObject:

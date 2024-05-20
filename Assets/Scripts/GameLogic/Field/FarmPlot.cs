@@ -1,10 +1,9 @@
 using System;
+using GameLogic.Plants;
 using Grab;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
-using UnityEngine.Serialization;
 
-namespace Tiling
+namespace GameLogic.Field
 {   
     // TLDR: both items must have collider, this one must have isTrigger, and at least one must have a Rigidbody
     //
@@ -16,7 +15,7 @@ namespace Tiling
     [RequireComponent(typeof(MeshFilter))]
     [RequireComponent(typeof(MeshRenderer))]
     
-    public class FarmLand : MonoBehaviour
+    public class FarmPlot : MonoBehaviour
     {
         [SerializeField]
         public Mesh progress0;
@@ -39,42 +38,16 @@ namespace Tiling
 
         private float _progress;
         private bool _planted;
-        private bool _doneGrowing;
         private Plant _plant;
-        private Grabbable _grabbable;
 
-        private float _timePassed;
-            
         void Start()
         {
             meshFilter = gameObject.GetComponent<MeshFilter>();
             meshRenderer = gameObject.GetComponent<MeshRenderer>();
             
             gameObject.tag = "FarmLand";
-            gameObject.layer = LayerMask.NameToLayer("Environment"); // ensure range grab can go through farmland
-        }
-
-        private void FixedUpdate()
-        {
-            if (!_planted || _doneGrowing) return;
-            
-            if (_plant.isGrowing)
-            {
-                _timePassed += Time.deltaTime;
-                if (_timePassed > 1f)
-                {
-                    _plant.GrowingStep();
-                    // Debug.Log(this.plant.ToString());
-                    _timePassed = 0f;
-                }
-            }    
-
-            if (!_plant.isGrowing) // not a very robust check
-            {
-                _doneGrowing = true;
-                _grabbable.UnPlantObject(gameObject);
-                // TODO: for some reason unable to grab plant that has finished growing...
-            }
+            // gameObject.layer = LayerMask.NameToLayer("Environment"); // ensure range grab can go through farmland
+            gameObject.layer = LayerMask.NameToLayer("Ignore Raycast"); // ensure range grab can go through farmland
         }
 
         private void OnTriggerEnter(Collider c)
@@ -110,34 +83,22 @@ namespace Tiling
                     {
                         _progress += 0.2f;
                     }
+                    UpdateSoil();
                     break;
                 
                 case "Plant":
-                    Grabbable g = c.gameObject.GetComponent<Grabbable>();
                     if (_planted || _progress < 1f)
                     {
-                        g.body.velocity *= -1;
+                        c.attachedRigidbody.velocity *= -1.5f; // bounce the plant away
+                        // TODO: play a rejection noise
                         break;
                     }
-                    
-                    // make the plant no longer grabbable
-                    _grabbable = g;
-                    _grabbable.PlantObject(gameObject);
-                    _grabbable.body.position = transform.position;
-                    // _grabbable.body.rotation = Quaternion.LookRotation(transform.forward, transform.up); // FromToRotation(_grabbable.transform.up, transform.up);
-                    // _grabbable.body.rotation = Quaternion.FromToRotation(Vector3.up, )
-                    _grabbable.body.rotation = Quaternion.AngleAxis(
-                        -Vector3.Angle(transform.up, Vector3.up),
-                        Vector3.Cross(transform.up, Vector3.up).normalized);
-                    // transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal) * transform.rotation;
-                    // transform.rotation = Quaternion.LookRotation(end - origin, hit.normal);
 
-                    // make the plant start growing
+                    // by setting plant to start growing it will plant itself in the plot
                     _plant = c.gameObject.GetComponent<Plant>();
-                    _plant.StartGrowing();
+                    _plant.StartGrowing(this);
                     
                     // set planted to true and reset digging progress
-                    _doneGrowing = false;
                     _planted = true;
                     _progress = 0f;
                     meshFilter.mesh = progress0;
@@ -152,7 +113,6 @@ namespace Tiling
             switch (c.gameObject.tag)
             {
                 case "Hoe":
-                    UpdateSoil();
                     break;
                 
                 case "Plant":

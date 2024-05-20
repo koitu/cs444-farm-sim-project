@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Tiling
+namespace GameLogic.Field
 {
     [RequireComponent(typeof(Collider))]
     [RequireComponent(typeof(Rigidbody))]
