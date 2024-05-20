@@ -51,7 +51,7 @@ namespace Grab
 
         private void FixedUpdate()
         {
-	        if (!_held) return;
+	        if (_planted || !_held) return;
 	        
 			_prevPosition = body.position;
 			_prevRotation = body.rotation;
@@ -107,37 +107,6 @@ namespace Grab
 	        body.transform.parent = _initialParent;
 	        body.velocity = GetVelocity() * 0.7f;
 	        body.angularVelocity = GetRotation();
-        }
-
-        public void PlantObject(GameObject go)
-        {
-	        body.isKinematic = true;
-	        body.transform.parent = go.transform.parent;
-	        
-	        SetLayers(
-		        GrabController.grabbableLayerName,
-		        LayerMask.LayerToName(0)); // default layer (will no longer interact with GrabController)
-
-	        _planted = true;
-	        _plantedBy = gameObject;
-        }
-        
-        public void UnPlantObject(GameObject go)
-        {
-	        if (go != _planted) return;
-
-	        _planted = false;
-	        _plantedBy = null;
-
-			SetLayers(
-		        LayerMask.LayerToName(0), // default layer (will no longer interact with GrabController)
-		        GrabController.grabbableLayerName);
-	        
-	        // stay kinematic
-	        body.isKinematic = false;
-	        // body.constraints = RigidbodyConstraints.FreezePosition;
-	        body.useGravity = false;
-            body.transform.parent = _initialParent;
         }
 
         public Vector3 GetVelocity()

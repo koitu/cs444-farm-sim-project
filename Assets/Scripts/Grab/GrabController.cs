@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+using Utils;
 using Quaternion = UnityEngine.Quaternion;
 
 namespace Grab
@@ -109,12 +109,20 @@ namespace Grab
 			{
 				// every grabbable object *must* have a rigidbody
 				RaycastHit cur = _sphereCastHits[i];
-				Vector3 hitDirection = (cur.transform.position - transform.position).normalized;
+				Vector3 direction = (cur.transform.position - transform.position).normalized;
+				
+				// check if we have direction line of sight to the closest point of the collider
+				Vector3 startPos1 = transform.position;
+				Vector3 startPos2 = transform.position + (transform.up * 0.3f);
+				
+				Vector3 direction1 = (cur.collider.ClosestPoint(startPos1) - startPos1).normalized;
+				Vector3 direction2 = (cur.collider.ClosestPoint(startPos2) - startPos2).normalized;
 
-				if (IsOccluded(transform.position, hitDirection, cur.collider) &&
-				    IsOccluded(transform.position + (transform.up * 0.3f), hitDirection, cur.collider)) continue;
+				if (IsOccluded(startPos1, direction1, cur.collider) &&
+				    IsOccluded(startPos2, direction2, cur.collider)) continue;
 
-				float angle = Vector3.Angle(transform.forward, hitDirection);
+				// check that the angle fo the collider is not too great
+				float angle = Vector3.Angle(transform.forward, direction);
 				if (SphereCastMaxAngle < angle || bestAngle < angle) continue;
 
 				bestAngle = angle;
@@ -266,34 +274,29 @@ namespace Grab
 			// - object should have some rotation so they are straight up when the player grabs them
 			//		- after arriving to the player's hand rotation is cancelled?
 			
-			// feedback
-			// - one vibrate when object is found by laser
-			// - a click noise (and maybe some rumbles) when object is locked on
-			// - some kind of feedback indicating time of flight
+			// when switching states we need to consider
+			// - what line should we be drawing
+			// - what kind of haptic feedback do we need
+			// - what kind of settings we have in the current state that need to be undone
 			Vector3 velocity = (transform.position - _prevPosition) / Time.deltaTime;
 			
 			switch (_grabState)
 			{
 				case GrabState.Holding:
-					_handController.short_vibrate();
+					// - drawing: nothing
+					// - haptic: short vibrate
+					// - setting: performed GrabObject
 					
-					// if holding an object then continue to hold it
+					// maintain current state
 					if (_handController.index_trigger_pressed() > 0.5) break;
 					
 					// if no longer holding an object then release it
 					_grabbable.ReleaseObject(this);
+					
+					// perform search for matches instead of dropping to the Nothing state
 					if (_handController.hand_trigger_pressed() > 0.5)
 					{
-						RangeSearchForMatches();
-						if (_hitValid)
-						{
-							DrawMatch();
-						}
-						else
-						{
-							DrawLooking();
-						}
-						_grabState = GrabState.Looking;
+						RangeSearchForMatchAndUpdateState();
 					}
 					else
 					{
@@ -302,7 +305,9 @@ namespace Grab
 					break;
 				
 				case GrabState.Pulling:
-					_handController.medium_vibrate();
+					// - drawing: nothing
+					// - haptic: medium vibrate
+					// - setting: set object velocity to come to player
 					
 					// maintain current state
 					if (_handController.index_trigger_pressed() > 0.5)
@@ -310,27 +315,33 @@ namespace Grab
 						// TODO: https://docs.unity3d.com/ScriptReference/Collider.ClosestPointOnBounds.html
 						if (Vector3.Distance(
 							    transform.position, 
-							    _grabbable.transform.position) < 0.2f)
+								_grabbable.coll.ClosestPoint(transform.position)) < 0.1f)
+							    // _grabbable.transform.position) < 0.2f)
 						{
+							// when the object comes close enough then attach it to the controller
 							_grabbable.body.useGravity = true;
 							_grabbable.body.freezeRotation = false;
+							
 							_grabbable.GrabObject(this);
 							_grabState = GrabState.Holding;
+							_handController.short_vibrate();
 						}
 						else if (_pullingLockoutTime < 0.1f)
 						{
+							// when the object is almost there then go straight to the controller
 							_grabbable.body.useGravity = false;
 							_grabbable.body.freezeRotation = true;
-							_grabbable.body.velocity = 8f *
-							                           (transform.position - _grabbable.transform.position).normalized;
+							_grabbable.body.velocity = 8f * (transform.position - _grabbable.transform.position).normalized;
 						}
-						// else
-						// {
-						// 	_grabbable.body.velocity += (velocity - _prevVelocity) / _pullingLockoutTime;
-						// }
+						else
+						{
+							_grabbable.body.position += (transform.position - _prevPosition);
+						}
 					}
 					else
 					{
+						// if we release the index trigger then we allow the object to fly past us
+						// (also make sure to undo changes done when the object is almost there)
 						_grabbable.body.useGravity = true;
 						_grabbable.body.freezeRotation = false;
 						_grabState = GrabState.Nothing;
@@ -381,7 +392,9 @@ namespace Grab
 				// 	break;
 
 				case GrabState.Locked:
-					_handController.short_vibrate();
+					// - drawing: DrawLocked, Highlight
+					// - haptic: short vibrate
+					// - setting: set locked objected to kinematic
 					
 					// upgrade to pulling: make a large enough movement
 					if (velocity.magnitude > velocityThreshold)
@@ -389,12 +402,13 @@ namespace Grab
 						_pullingLockoutTime = PullingConstTime;  // time for object to be pulled
 						_grabbable.body.isKinematic = false;
 						_grabbable.body.useGravity = true; // make sure to turn gravity for _plants_ ON
-						// _grabbable.body.velocity = PullInitialVelocity() + velocity;
 						_grabbable.body.velocity = PullInitialVelocity();
 						_grabbable.body.angularVelocity = PullInitialRotation(); // TODO: does not work very well
 						// Debug.LogWarningFormat("velocity {0} rotation {1}", PullInitialVelocity(), PullInitialRotation());
+						
 						_grabbable.UnHighlight();
 						_grabState = GrabState.Pulling;
+						_handController.medium_vibrate();
 						ClearDrawing();
 						break;
 					}
@@ -407,6 +421,7 @@ namespace Grab
 					else
 					{
 						_grabbable.body.isKinematic = false;
+						
 						_grabbable.UnHighlight();
 						_grabState = GrabState.Nothing;
 						ClearDrawing();
@@ -414,23 +429,24 @@ namespace Grab
 					break;
 				
 				case GrabState.Matched:
-					_handController.short_vibrate();
+					// - drawing: DrawMatched, Highlight
+					// - haptic: short vibrate
+					// - setting: stores the currently matched object in _grabbable
 					
-					// maintain state
+					// maintain current state
 					if (_handController.hand_trigger_pressed() > 0.5)
 					{
-						// check range search for matches, if so then lock on
 						RangeSearchForMatches();
-						if (_hitValid)
-						{
-							Grabbable new_g = _hit.rigidbody.gameObject.GetComponent<Grabbable>();
-							if (new_g != _grabbable)
-							{
-								_grabbable.UnHighlight();
-							}
+						if (_hitValid) {
+							Grabbable prev = _grabbable; // should never be null
+							_grabbable = _hit.rigidbody.gameObject.GetComponent<Grabbable>();
 
-							_grabbable = new_g;
-							_grabbable.Highlight();
+							if (prev != _grabbable)
+							{
+								prev.UnHighlight();
+								_grabbable.Highlight();
+								_handController.short_vibrate();
+							}
 							DrawMatch();
 						}
 						else
@@ -438,7 +454,6 @@ namespace Grab
 							_grabbable.UnHighlight();
 							_grabState = GrabState.Looking;
 							DrawLooking();
-							break;
 						}
 					}
 					else
@@ -453,24 +468,22 @@ namespace Grab
 					if (_handController.index_trigger_pressed() > 0.5)
 					{
 						_grabbable.body.isKinematic = true;
+						
 						_grabState = GrabState.Locked;
+						_handController.short_vibrate();
 						DrawLocked();
 					}
 					break;
 				
 				case GrabState.Looking:
+					// - drawing: DrawLooking
+					// - haptic: nothing
+					// - setting: nothing
+					
 					// upgrade to matched: press hand trigger and find a match
 					if (_handController.hand_trigger_pressed() > 0.5)
 					{
-						RangeSearchForMatches();
-						if (_hitValid)
-						{
-							_grabState = GrabState.Matched;
-							DrawMatch();
-							break;
-						}
-						
-						DrawLooking();
+						RangeSearchForMatchAndUpdateState();
 					}
 					else
 					{
@@ -480,6 +493,10 @@ namespace Grab
 					break;
 				
 				case GrabState.Nothing:
+					// - drawing: nothing
+					// - haptic: nothing
+					// - setting: nothing
+					
                     // upgrade to holding: press index trigger while near object that can be grabbed
 					if (_handController.index_trigger_pressed() > 0.5)
 					{	
@@ -495,6 +512,7 @@ namespace Grab
 								_grabbable = _col.gameObject.GetComponent<Grabbable>();
 								_grabbable.GrabObject(this);
 								_grabState = GrabState.Holding;
+								_handController.short_vibrate();
 								break;
 							}
 						}
@@ -508,17 +526,7 @@ namespace Grab
 					// upgrade to matched: press hand trigger and have an match
 					if (_handController.hand_trigger_pressed() > 0.5)
 					{
-						RangeSearchForMatches();
-						if (_hitValid)
-						{
-							_grabState = GrabState.Matched;
-							DrawMatch();
-						}
-						else
-						{
-							_grabState = GrabState.Looking;
-							DrawLooking();
-						}
+						RangeSearchForMatchAndUpdateState();
 					}
 					break;
 			}
@@ -527,7 +535,23 @@ namespace Grab
 			_prevVelocity = velocity;
 			_prevRotation = transform.rotation;
 		}
-		
+
+		private void RangeSearchForMatchAndUpdateState()
+		{
+			RangeSearchForMatches();
+			if (_hitValid) {
+				_grabbable = _hit.rigidbody.gameObject.GetComponent<Grabbable>(); 
+				_grabbable.Highlight();
+				_grabState = GrabState.Matched;
+				_handController.short_vibrate();
+				DrawMatch();
+			}
+			else
+			{
+				_grabState = GrabState.Looking;
+				DrawLooking();
+			}
+		}
 
 		private bool IsOccluded(Vector3 start, Vector3 direction, Collider target)
 		{
@@ -536,8 +560,8 @@ namespace Grab
 				       start,
 				       direction,
 				       out RaycastHit hit,
-				       maximumGrabDistance,
-				       Physics.DefaultRaycastLayers | rangeGrabbableLayers) ||
+				       maximumGrabDistance, 
+				       Physics.DefaultRaycastLayers & (~LayerMask.NameToLayer("Grabbing"))) ||
 			       hit.collider != target;
 		}
 		
