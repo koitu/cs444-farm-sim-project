@@ -1,5 +1,6 @@
 using GameLogic.Field;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GameLogic.Plants
 {
@@ -8,29 +9,14 @@ namespace GameLogic.Plants
     
     public abstract class Plant : MonoBehaviour
     {
-        private enum MeshNames {
-            LStage,
-            MStage,
-            SStage,
-            Seed,
-            Default,
-            Group
-        }
-
-        public Mesh growthStageL;
-        public Mesh growthStageM;
-        public Mesh growthStageS;
-        public Mesh seed;
-
-        public Mesh defaultStage;
-        public Mesh group;
-
+        // for all plants there are always 4 stages
+        public GameObject[] plantStages = new GameObject[4];
+        
         private Rigidbody _body;
-        private MeshFilter _meshFilter;
-        private MeshCollider _meshCollider;
         private FarmPlot _plot;
 
-        private int _stage;
+        private int _stageIdx;
+        private GameObject _stageObj;
         private const int MaxStage = 3;
 
         private float _timePassed;
@@ -49,8 +35,9 @@ namespace GameLogic.Plants
         {
             gameObject.tag = "Plant";
             _body = GetComponent<Rigidbody>();
-            _meshFilter = GetComponent<MeshFilter>();
-            _meshCollider = GetComponent<MeshCollider>();
+            
+            _stageIdx = 0;
+            _stageObj = plantStages[0];
         }
 
         public void StartGrowing(FarmPlot plot)
@@ -59,11 +46,13 @@ namespace GameLogic.Plants
             
             // _meshCollider.enabled = false;
             // _grabbable.PlantObject(_plot.gameObject);
+            gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 	        _body.isKinematic = true;
             growing = true;
             grown = false;
             
-            _stage = 0;
+            _stageIdx = 0;
+            _stageObj.SetActive(false); // make the plant invisible when first planted
             _timePassed = 0f;
             StageGrowTimeLeft = StageGrowTime;
             
@@ -78,16 +67,24 @@ namespace GameLogic.Plants
             if (StageGrowTimeLeft > 0) return;
             StageGrowTimeLeft = StageGrowTime;
 
-            if (_stage < MaxStage) _stage++;
-            if (_stage != MaxStage) return;
-            
-            // _meshCollider.enabled = true;
-            // _grabbable.UnPlantObject(_plot.gameObject);
-            _body.isKinematic = false;
-            growing = false;
-            grown = true;
-            
-            transform.position = _plot.transform.position + Vector3.up;
+            if (_stageIdx < MaxStage)
+            {
+                _stageIdx++;
+            }
+            _stageObj.SetActive(false);
+            _stageObj = plantStages[_stageIdx];
+            _stageObj.SetActive(true);
+
+            // we are done growing
+            if (_stageIdx == MaxStage)
+            {
+                // _meshCollider.enabled = true;
+                // _grabbable.UnPlantObject(_plot.gameObject);
+                gameObject.layer = LayerMask.NameToLayer("Grabbable");
+                _body.isKinematic = false;
+                growing = false;
+                grown = true;
+            }
         }
    //      public void PlantObject(GameObject go)
    //      {
@@ -130,55 +127,6 @@ namespace GameLogic.Plants
             _timePassed = 0f;
 
             GrowStep();
-            switch (_stage)
-            {
-                case 0:
-                    SetMesh(MeshNames.Seed);
-                    break;
-                case 1:
-                    SetMesh(MeshNames.SStage);
-                    break;
-                case 2:
-                    SetMesh(MeshNames.MStage);
-                    break;
-                case 3:
-                    SetMesh(MeshNames.LStage);
-                    break;
-                default:
-                    SetMesh(MeshNames.Default);
-                    break;
-            }
-        }
-        
-        private void SetMesh(MeshNames meshType)
-        {
-            // TODO: it appears that is the issue has something to do with changing the mesh
-            switch(meshType) {
-                case MeshNames.Group:
-                    this._meshFilter.mesh = this.group;
-                    // this._meshCollider.sharedMesh = this.group;
-                    break;
-                case MeshNames.Seed:
-                    this._meshFilter.mesh = this.seed;
-                    // this._meshCollider.sharedMesh = this.seed;
-                    break;
-                case MeshNames.SStage:
-                    this._meshFilter.mesh = this.growthStageS;
-                    // this._meshCollider.sharedMesh = this.growthStageS;
-                    break;
-                case MeshNames.MStage:
-                    this._meshFilter.mesh = this.growthStageM;
-                    // this._meshCollider.sharedMesh = this.growthStageM;
-                    break;
-                case MeshNames.LStage:
-                    this._meshFilter.mesh = this.growthStageL;
-                    // this._meshCollider.sharedMesh = this.growthStageL;
-                    break;
-                default:
-                    this._meshFilter.mesh = this.defaultStage;
-                    // this._meshCollider.sharedMesh = this.defaultStage;
-                    break;
-            }
         }
 
         public virtual void Destroy()
