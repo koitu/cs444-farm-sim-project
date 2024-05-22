@@ -48,7 +48,7 @@ public class ContainableItem : MonoBehaviour
 
         this.transform.SetParent(container.transform);
         this.rigidbody.isKinematic = true;
-        //this.collider.enabled = false;
+        this.collider.enabled = false;
         containerAttached = container;
     }
 
@@ -58,7 +58,7 @@ public class ContainableItem : MonoBehaviour
 
         this.transform.SetParent(this.initial_transform_parent);
         this.rigidbody.isKinematic = this.initial_kinematic;
-        //this.collider.enabled = true;
+        this.collider.enabled = true;
         containerAttached = null;
         this.releasedInstance = Time.time;
     }
