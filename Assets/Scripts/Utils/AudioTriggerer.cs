@@ -8,7 +8,7 @@ public class AudioTriggerer : MonoBehaviour
 {
     private AudioSource audioSource;
     
-    public AudioClip[] audioClips = [];
+    public List<AudioClip> audioClips = new List<AudioClip>();
 
     public float probabilityPerSecond = 0.01f;
 
@@ -26,9 +26,9 @@ public class AudioTriggerer : MonoBehaviour
         if (Random.value < probabilityPerSecond && !this.audioSource.isPlaying)
         {
             // Play the audio
-            if (audioClips.Length > 0)
+            if (audioClips.Count > 0)
             {
-                this.audioSource.clip = audioClips[Random.Range(0, audioClips.Length)];
+                this.audioSource.clip = audioClips[Random.Range(0, audioClips.Count)];
             }
             this.audioSource.Play();
         }

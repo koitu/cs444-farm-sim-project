@@ -23,7 +23,7 @@ public class MainPlayerController : MonoBehaviour
         Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
         this.initialGravity = this.OVRPlayerController.GravityModifier;
         lastStepTeleporters = GetComponents<LastStepTeleporter>();
-        this.audioSource = this.climbingHand.GetComponent<AudioSource>();
+        this.audioSource = GetComponent<AudioSource>();
         enableLastStepTeleporters(false);
     }
 
