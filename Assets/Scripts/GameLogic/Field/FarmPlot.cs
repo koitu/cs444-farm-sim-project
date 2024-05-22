@@ -139,9 +139,7 @@ namespace GameLogic.Field
             
             _extraPlant.Body.isKinematic = true;
             _extraPlant.gameObject.layer = LayerMask.NameToLayer("Grabbable");
-
-            // hide the extra plant
-            _plant.transform.position += Vector3.down;
+            _extraPlant.transform.position += Vector3.down * 0.1f;   // hide the extra plant
 
             // set done growing to true to all us to dig out plants
             _numPlant = 2;
@@ -174,9 +172,7 @@ namespace GameLogic.Field
                             _plant.Body.detectCollisions = true;
                             _plant.gameObject.layer = LayerMask.NameToLayer("Grabbable");
                             
-                            // reveal the extra plant
-                            _meshFilter.mesh = progress50;
-                            _plant.transform.position += Vector3.up;
+                            _meshFilter.mesh = progress50;  // reveal the plant
                         }
                     }
                     else if(_numPlant == 1)

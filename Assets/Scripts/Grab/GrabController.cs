@@ -12,7 +12,7 @@ namespace Grab
 		
 		[Header("Maximum Grab Distance")] [Range(2f, 30f)]
 		// maximum distance the player can grab an object from
-		public float maximumGrabDistance = 15f;
+		public float maximumGrabDistance = 20f;
 		
 		[Header("UI")]
 		// [Header("Non-match line appearance")]
@@ -60,7 +60,7 @@ namespace Grab
 		// sphere overlap parameters (near grab)
 		private Collider[] _sphereOverlapHits;
 		private const int SphereOverlapMaxHits = 64;
-		private const float SphereOverlapRadius = 0.5f; // we will also check the object's grasping radius
+		private const float SphereOverlapRadius = 0.1f;
 		private bool _colValid;
 		private Collider _col;
 		
@@ -111,9 +111,13 @@ namespace Grab
 
 			for (int i = 0; i < hitNum; i++)
 			{
-				// every grabbable object *must* have a rigidbody
 				RaycastHit cur = _sphereCastHits[i];
-				Vector3 direction = (cur.transform.position - transform.position).normalized;
+				
+				// reject if too nearby
+				if (Vector3.Distance(transform.position, cur.transform.position) < SphereCastRadius)
+				{
+					continue;
+				}
 				
 				// check if we have direction line of sight to the closest point of the collider
 				Vector3 startPos1 = transform.position;
@@ -125,7 +129,9 @@ namespace Grab
 				if (IsOccluded(startPos1, direction1, cur.collider) &&
 				    IsOccluded(startPos2, direction2, cur.collider)) continue;
 
-				// check that the angle fo the collider is not too great
+				// check that the angle is not too great
+				Vector3 direction = (cur.transform.position - transform.position).normalized;
+				
 				float angle = Vector3.Angle(transform.forward, direction);
 				if (SphereCastMaxAngle < angle || bestAngle < angle) continue;
 
@@ -158,10 +164,13 @@ namespace Grab
 			for (int i = 0; i < colNum; i++)
 			{
 				Collider cur = _sphereOverlapHits[i];
-				float dst = Vector3.Distance(transform.position, cur.transform.position);
+				float dst = Vector3.Distance(
+					transform.position,
+					cur.ClosestPoint(transform.position));
 
-				Grabbable obj = cur.gameObject.GetComponent<Grabbable>();
-				if (obj.get_grasping_radius() < dst || bestDst < dst) continue;
+				// Grabbable obj = cur.gameObject.GetComponent<Grabbable>();
+				// if (obj.get_grasping_radius() < dst || bestDst < dst) continue;
+				if (bestDst < dst) continue;
 
 				_colValid = true;
 				bestCol = cur;

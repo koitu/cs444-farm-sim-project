@@ -65,19 +65,19 @@ namespace Utils
 		internal void short_vibrate()
 		{
 			if (_vibrating) return;
-			StartCoroutine(PerformVibration(0.1f));
+			StartCoroutine(PerformVibration(0.05f));
 		}
 	
 		internal void medium_vibrate()
 		{
 			if (_vibrating) return;
-			StartCoroutine(PerformVibration(0.3f));
+			StartCoroutine(PerformVibration(0.2f));
 		}
 	
 		internal void long_vibrate()
 		{
 			if (_vibrating) return;
-			StartCoroutine(PerformVibration(0.9f));
+			StartCoroutine(PerformVibration(0.4f));
 		}
 	}
 }

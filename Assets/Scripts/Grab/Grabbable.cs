@@ -8,8 +8,9 @@ namespace Grab
     
     public class Grabbable : MonoBehaviour
     {
-		[Header("Grasping Properties")]
-		public float graspingRadius = 0.1f;
+	    // // use the mesh collider instead
+		// [Header("Grasping Properties")]
+		// public float graspingRadius = 0.1f;
 
 		[Header("Object Properties")]
 		public bool throwable = true;
@@ -159,17 +160,17 @@ namespace Grab
 		        Destroy(_highlightObject);
 	        }
         }
-        
-		void OnDrawGizmos()
-		{
-			// Draw a blue sphere at the transform's position with the radius specified
-			Gizmos.color = Color.red;
-			Gizmos.DrawWireSphere(transform.position, graspingRadius);
-		}
-		
-		public float get_grasping_radius()
-		{
-			return graspingRadius;
-		}
+
+		// void OnDrawGizmos()
+		// {
+		// 	// Draw a blue sphere at the transform's position with the radius specified
+		// 	Gizmos.color = Color.red;
+		// 	Gizmos.DrawWireSphere(transform.position, graspingRadius);
+		// }
+		//
+		// public float get_grasping_radius()
+		// {
+		// 	return graspingRadius;
+		// }
     }
 }
