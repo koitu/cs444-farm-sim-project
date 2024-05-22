@@ -84,8 +84,7 @@ namespace LowPolyWater
                 distance = (distance % waveLength) / waveLength;
 
                 //Oscilate the wave height via sine to create a wave effect
-                v.y = waveHeight * Mathf.Sin(Time.time * Mathf.PI * 2.0f * waveFrequency
-                + (Mathf.PI * 2.0f * distance));
+                v.y = waveHeight * Mathf.Sin(Time.time * Mathf.PI * 2.0f * waveFrequency + (Mathf.PI * 2.0f * distance));
                 
                 //Update the vertex
                 vertices[i] = v;
