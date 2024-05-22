@@ -8,6 +8,8 @@ public class AudioTriggerer : MonoBehaviour
 {
     private AudioSource audioSource;
     
+    public AudioClip[] audioClips = [];
+
     public float probabilityPerSecond = 0.01f;
 
     // Start is called before the first frame update
@@ -24,6 +26,10 @@ public class AudioTriggerer : MonoBehaviour
         if (Random.value < probabilityPerSecond && !this.audioSource.isPlaying)
         {
             // Play the audio
+            if (audioClips.Length > 0)
+            {
+                this.audioSource.clip = audioClips[Random.Range(0, audioClips.Length)];
+            }
             this.audioSource.Play();
         }
     }
