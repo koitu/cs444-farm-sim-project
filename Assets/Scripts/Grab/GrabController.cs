@@ -114,7 +114,7 @@ namespace Grab
 				RaycastHit cur = _sphereCastHits[i];
 				
 				// reject if too nearby
-				if (Vector3.Distance(transform.position, cur.transform.position) < SphereCastRadius)
+				if (Vector3.Distance(transform.position, cur.transform.position) < SphereOverlapRadius)
 				{
 					continue;
 				}

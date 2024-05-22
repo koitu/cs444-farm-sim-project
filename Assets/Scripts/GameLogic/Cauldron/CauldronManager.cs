@@ -11,7 +11,7 @@ namespace GameLogic.Cauldron
         private Plant plant2 = null;
 
         private List<Plant> result = null;
-        public Plant[] possiblePlantResults = null;
+        public Plant[] possiblePlantResults = new Plant[9];
 
         public ParticleSystem particles;
 
@@ -22,11 +22,16 @@ namespace GameLogic.Cauldron
         public bool isBreeding = false;
         public bool consumeSeeds = true;
 
-        public Plant onion;
-        public Vector3 resultPosition;
-
         public AudioSource audioSource;
 
+        // public Plant onion;
+        
+        // place the resulting plant at a offset from the container position
+        private readonly Vector3 _resultPositionOffset = new Vector3(0f, 0.25f, 0f);
+        private Vector3 GetResultPosition()
+        {
+            return transform.position + transform.right + _resultPositionOffset;
+        }
 
         /**
          * Checks if there is space for breeding in the cauldron.
@@ -44,13 +49,13 @@ namespace GameLogic.Cauldron
         {
             if (this.plant1 == null)
             {
-                Debug.Log("Assignign plant 1");
+                Debug.Log("Assigning plant 1");
                 this.plant1 = plant;
                 return 0;
             }
             if (this.plant2 == null)
             {
-                Debug.Log("Assignign plant 2");
+                Debug.Log("Assigning plant 2");
                 this.plant2 = plant;
                 startBreed();
                 return 0;
@@ -85,17 +90,17 @@ namespace GameLogic.Cauldron
          */
         IEnumerator InstantiateObjects(List<Plant> plants)
         {
-            Instantiate(result[0], resultPosition, Quaternion.identity);
+            Instantiate(result[0], GetResultPosition(), Quaternion.identity);
             yield return new WaitForSeconds(1f);
         
             if (result.Count > 1)
             {
-                result[1].transform.position = resultPosition;
+                result[1].transform.position = GetResultPosition();
                 result[1].transform.rotation = Quaternion.identity;
                 this.plant1 = null;
                 yield return new WaitForSeconds(1f);
 
-                result[2].transform.position = resultPosition;
+                result[2].transform.position = GetResultPosition();
                 result[2].transform.rotation = Quaternion.identity;
                 this.plant2 = null;
                 yield return new WaitForSeconds(1f);
@@ -148,16 +153,22 @@ namespace GameLogic.Cauldron
                 assignPlant(other.GetComponent<Plant>());
             } else
             {
-                other.transform.position = this.resultPosition;
+                other.transform.position = GetResultPosition();
             }
         }
 
         float timePassed = 0f;
         void Update()
         {
+            // Debugging without VR headset
             if (Input.GetKeyDown(KeyCode.B))
             {
-                Plant breedingPlant1 = Instantiate(onion, new Vector3(transform.position.x, transform.position.y + 1.5f, transform.position.z), Quaternion.identity, transform.parent);
+                Plant breedingPlant1 = 
+                    Instantiate(
+                        possiblePlantResults[6],
+                        new Vector3( transform.position.x, transform.position.y + 1.5f, transform.position.z),
+                        Quaternion.identity,
+                        transform.parent);
             }
 
             if (!this.isBreeding) return;
@@ -179,7 +190,7 @@ namespace GameLogic.Cauldron
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.cyan;
-            Gizmos.DrawSphere(resultPosition, 0.3f);
+            Gizmos.DrawSphere(GetResultPosition(), 0.3f);
         }
     }
 }

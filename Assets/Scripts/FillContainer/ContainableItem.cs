@@ -1,6 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Collider))]
 
 public class ContainableItem : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class ContainableItem : MonoBehaviour
 
     // Store element's rigidbody
     protected Rigidbody rigidbody;
-    public Collider collider;
+    protected Collider collider;
     protected float releasedInstance;
 
     private void Start()
