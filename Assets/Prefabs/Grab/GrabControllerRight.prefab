@@ -452,7 +452,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8fbc21277594c8492eb3a0c8aa497ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maximumGrabDistance: 15
+  maximumGrabDistance: 20
   lookingLine: {fileID: 621166307520004387}
   matchingLine: {fileID: 8143887466076641781}
   lockedLine: {fileID: 5128650851537970641}
@@ -462,7 +462,6 @@ MonoBehaviour:
   rangeGrabbableLayers:
     serializedVersion: 2
     m_Bits: 0
-  velocityThreshold: 2
 --- !u!114 &7819780842079900444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -489,7 +488,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fa67f1d0836420d81b46fe139525bfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maximumTeleportationDistance: 15
+  maximumTeleportationDistance: 20
   markerPrefab: {fileID: 6984496144424113020, guid: f6280ede11a45e5418036ee0171a99dd, type: 3}
   lineRenderer: {fileID: 1656388130466880757}
   screenFader: {fileID: 0}
@@ -502,10 +501,10 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5511931770487103160}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.3
+  m_Radius: 0.1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!82 &6606126972866187676
 AudioSource:
