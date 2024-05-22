@@ -1,6 +1,7 @@
 using System;
 using FillContainer;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Grab
 {
@@ -38,8 +39,10 @@ namespace Grab
         private Vector3 _prevPosition;
         private Quaternion _prevRotation;
 
-        private ContainableItem _containableItem;
-        private bool isContainableItem;
+        [HideInInspector]
+		public ContainableItem containableItem;
+        [HideInInspector]
+        public bool isContainableItem;
 
 
         private void Start()
@@ -47,8 +50,8 @@ namespace Grab
 	        body = GetComponent<Rigidbody>();
 	        coll = GetComponents<Collider>();
 	        
-	        _containableItem = GetComponent<ContainableItem>();
-	        isContainableItem = (_containableItem != null);
+	        containableItem = GetComponent<ContainableItem>();
+	        isContainableItem = (containableItem != null);
 	        
             gameObject.layer = LayerMask.NameToLayer(GrabController.grabbableLayerName);
 			_initialParent = transform.parent;
@@ -85,16 +88,21 @@ namespace Grab
 
         public void GrabObject(GrabController grabController)
         {
-	        if (isContainableItem && _containableItem.isAttached)
+	        // play nice with objects that could be inside containers
+	        if (isContainableItem && containableItem.isAttached)
 	        {
-		        _containableItem.Detach();
+		        containableItem.Detach();
 	        }
+	        
+	        // grabbed object should follow the hand
 	        body.isKinematic = true;
 	        body.transform.parent = grabController.transform.parent;
 	        
-	        SetLayers(
-		        GrabController.grabbableLayerName,
-		        GrabController.grabbingLayerName);
+	        // should not be able to range grab held object (but should be able to near grab it)
+            gameObject.layer = LayerMask.NameToLayer(GrabController.grabbingLayerName);
+	        // SetLayers(
+		       //  GrabController.grabbableLayerName,
+		       //  GrabController.grabbingLayerName);
 
 	        held = true;
 	        _heldBy = grabController;
@@ -107,10 +115,12 @@ namespace Grab
 	        held = false;
 	        _heldBy = null;
 	        
-	        SetLayers(
-		        GrabController.grabbingLayerName,
-		        GrabController.grabbableLayerName);
+            gameObject.layer = LayerMask.NameToLayer(GrabController.grabbableLayerName);
+	        // SetLayers(
+		       //  GrabController.grabbingLayerName,
+		       //  GrabController.grabbableLayerName);
 	        
+	        // release the object from the hand and set the velocity
 	        body.isKinematic = false;
 	        body.transform.parent = _initialParent;
 	        body.velocity = GetVelocity();

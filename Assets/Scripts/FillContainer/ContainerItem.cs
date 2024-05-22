@@ -1,33 +1,36 @@
 using System.Collections.Generic;
 using Grab;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FillContainer
 {
     public class ContainerItem : MonoBehaviour
     {
-
+        [HideInInspector]
         public List<ContainableItem> itemsContained;
 
-        public Rigidbody rigidbody;
+        [HideInInspector]
+        public Rigidbody body;
 
         public BoxCollider boxCollider;
         public float stepIncrease;
         public float maximumColliderYSize;
-        private float _minimumColliderYSize;
         private int _overload;
+
+        public bool upsideDown;
 
         private void Start()
         {
-            rigidbody = GetComponent<Rigidbody>();
-            _minimumColliderYSize = boxCollider.size.y;
+            body = GetComponent<Rigidbody>();
         }
 
         void Update()
         {
             // Determine orientation relative to the global up (Vector3.up)
             // You can adjust the threshold for sensitivity
-            if (Vector3.Angle(transform.up, Vector3.up) < 150) return;
+            upsideDown = (Vector3.Angle(transform.up, Vector3.up) > 150);
+            if (!upsideDown) return;
             
             Debug.Log("The container is upside down.");
 

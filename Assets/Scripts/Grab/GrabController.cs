@@ -15,23 +15,18 @@ namespace Grab
 		public float maximumGrabDistance = 20f;
 		
 		[Header("UI")]
-		// [Header("Non-match line appearance")]
 		[SerializeField]
 		// used when we have not made a match
 		public LineRenderer lookingLine;
 		
-		// [Header("Match line appearance")]
 		[SerializeField]
 		// used when we found an object
 		public LineRenderer matchingLine;
 		
-		// [Header("Locked line appearance")]
 		[SerializeField]
 		// used when we lock onto an object
 		public LineRenderer lockedLine;
 
-		// [Header("Properties")]
-		// [SerializeField]
 		// controller button presses helper
 		private HandController _handController;
 		
@@ -268,7 +263,6 @@ namespace Grab
 			// - what kind of haptic feedback do we need
 			// - what kind of settings we have in the current state that need to be undone
 			
-			// TODO: clean up these calculations as we are redoing stuff done in some methods
 			Vector3 velocity = (transform.position - _prevPosition) / Time.deltaTime;
 			Quaternion deltaRot = transform.rotation * Quaternion.Inverse(_prevRotation);
 	        deltaRot.ToAngleAxis(out float angle, out Vector3 axis);
@@ -321,9 +315,12 @@ namespace Grab
 						else if (_pullingLockoutTime < 0.1f)
 						{
 							// when the object is almost there then go straight to the controller
+							// slow down the object when we get closer
 							_grabbable.body.useGravity = false;
 							_grabbable.body.freezeRotation = true;
-							_grabbable.body.velocity = 8f * (transform.position - _grabbable.transform.position).normalized;
+							_grabbable.body.velocity = 
+								((Vector3.Distance(transform.position,_grabbable.ClosestPoint(transform.position)) < 0.5f) ? 4f : 8f)
+								* (transform.position - _grabbable.transform.position).normalized;
 						}
 						else
 						{
@@ -353,6 +350,11 @@ namespace Grab
 					    Vector3.Angle(transform.forward, (_grabbable.transform.position - transform.position).normalized) > AngleThreshold)
 						
 					{
+						// if (_grabbable.isContainableItem && _grabbable.containableItem.isAttached)
+						// {
+						// 	_grabbable.containableItem.Detach();
+						// }
+	        
 						_pullingLockoutTime = 
 							Vector3.Distance(transform.position, _grabbable.transform.position) > ShortPullingThreshold ?
 								LongPullingConstTime : ShortPullingConstTime;  // time for object to be pulled

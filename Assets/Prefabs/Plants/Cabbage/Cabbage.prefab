@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4133074536588069281}
   - component: {fileID: 4429927307579260097}
   - component: {fileID: 3358612065754601657}
-  - component: {fileID: 4606222249040192146}
   - component: {fileID: 6519078353311369539}
   - component: {fileID: 6120874620553227804}
   - component: {fileID: 1246920475113844801}
@@ -71,21 +70,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 43131310796612222, guid: 7074d71ca8cc46f48959d37c091b633f, type: 2}
---- !u!138 &4606222249040192146
-FixedJoint:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7492304659955435632}
-  m_ConnectedBody: {fileID: 0}
-  m_ConnectedArticulationBody: {fileID: 0}
-  m_BreakForce: Infinity
-  m_BreakTorque: Infinity
-  m_EnableCollision: 0
-  m_EnablePreprocessing: 1
-  m_MassScale: 1
-  m_ConnectedMassScale: 1
 --- !u!114 &6519078353311369539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,6 +82,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32553771ebdb32444aa7e85e4d12a07d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isAttached: 0
 --- !u!114 &6120874620553227804
 MonoBehaviour:
   m_ObjectHideFlags: 0
