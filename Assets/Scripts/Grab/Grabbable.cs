@@ -1,4 +1,5 @@
 using System;
+using FillContainer;
 using UnityEngine;
 
 namespace Grab
@@ -22,17 +23,13 @@ namespace Grab
         public Rigidbody body;
         
         [HideInInspector]
-        public Collider coll;
+        public Collider[] coll;
 
 		// store the grab controller this object will be attached to
-        private bool _held;
+		public bool held {get; private set;}
         private GrabController _heldBy;
         private Transform _initialParent;
         
-        // help for planting
-        private bool _planted;
-        private GameObject _plantedBy;
-
         // highlighting parameters
         private bool _highlighting;
         private GameObject _highlightObject;
@@ -41,18 +38,25 @@ namespace Grab
         private Vector3 _prevPosition;
         private Quaternion _prevRotation;
 
+        private ContainableItem _containableItem;
+        private bool isContainableItem;
+
 
         private void Start()
         {
 	        body = GetComponent<Rigidbody>();
-	        coll = GetComponent<Collider>();
+	        coll = GetComponents<Collider>();
+	        
+	        _containableItem = GetComponent<ContainableItem>();
+	        isContainableItem = (_containableItem != null);
+	        
             gameObject.layer = LayerMask.NameToLayer(GrabController.grabbableLayerName);
 			_initialParent = transform.parent;
         }
 
         private void FixedUpdate()
         {
-	        if (_planted || !_held) return;
+	        if (!held) return;
 	        
 			_prevPosition = body.position;
 			_prevRotation = body.rotation;
@@ -81,15 +85,18 @@ namespace Grab
 
         public void GrabObject(GrabController grabController)
         {
+	        if (isContainableItem && _containableItem.isAttached)
+	        {
+		        _containableItem.Detach();
+	        }
 	        body.isKinematic = true;
-	        body.constraints = RigidbodyConstraints.None;
 	        body.transform.parent = grabController.transform.parent;
 	        
 	        SetLayers(
 		        GrabController.grabbableLayerName,
 		        GrabController.grabbingLayerName);
 
-	        _held = true;
+	        held = true;
 	        _heldBy = grabController;
         }
         
@@ -97,7 +104,7 @@ namespace Grab
         {
 	        if (grabController != _heldBy) return;
 
-	        _held = false;
+	        held = false;
 	        _heldBy = null;
 	        
 	        SetLayers(
@@ -108,6 +115,28 @@ namespace Grab
 	        body.transform.parent = _initialParent;
 	        body.velocity = GetVelocity();
 	        body.angularVelocity = GetRotation();
+        }
+
+        // since some object could have multiple colliders we need to consider this
+        // e.g. a container cannot use a convex collider as it needs to hold stuff
+        public Vector3 ClosestPoint(Vector3 pos)
+        {
+	        Vector3 best = coll[0].ClosestPoint(pos);
+	        float bestDist = Vector3.Distance(best, pos);
+
+	        for (int i = 1; i < coll.Length; i++)
+	        {
+				Vector3 cur = coll[i].ClosestPoint(pos);
+				float curDist = Vector3.Distance(cur, pos);
+				
+		        if (curDist < bestDist)
+		        {
+			        best = cur;
+			        bestDist = curDist;
+		        }
+	        }
+
+	        return best;
         }
 
         public Vector3 GetVelocity()

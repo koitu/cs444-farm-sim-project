@@ -59,7 +59,7 @@ public class TeleportController : MonoBehaviour
 			_hit.point : transform.position + (transform.forward * maximumTeleportationDistance);
 		
 		if (_hitValid &&
-		    Vector3.Angle(Vector3.up, _hit.normal) > AngleThreshold)
+		    Vector3.Angle(Vector3.up, _hit.normal) < AngleThreshold)
 		{
 			// if ray does hit something not too steep then draw the marker
 			if (!_markerCreated)
@@ -78,6 +78,8 @@ public class TeleportController : MonoBehaviour
 				_markerCreated = false;
 				Destroy(_marker);
 			}
+
+			_hitValid = false;
 		}
 	}
 

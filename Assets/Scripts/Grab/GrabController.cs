@@ -308,7 +308,7 @@ namespace Grab
 					{
 						if (Vector3.Distance(
 							    transform.position, 
-								_grabbable.coll.ClosestPoint(transform.position)) < 0.1f)
+								_grabbable.ClosestPoint(transform.position)) < 0.1f)
 						{
 							// when the object comes close enough then attach it to the controller
 							_grabbable.body.useGravity = true;
@@ -492,6 +492,7 @@ namespace Grab
 
 		private void RangeSearchForMatchAndUpdateState()
 		{
+			// helper to perform a range search for anything grabbable and update the GrabState accordingly
 			RangeSearchForMatches();
 			if (_hitValid) {
 				_grabbable = _hit.rigidbody.gameObject.GetComponent<Grabbable>(); 

@@ -1,65 +1,90 @@
+using Grab;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(Collider))]
-
-public class ContainableItem : MonoBehaviour
+namespace FillContainer
 {
+    [RequireComponent(typeof(FixedJoint))]
+    [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(Collider))]
 
-    // Store the container to which the object is attached
-    protected ContainerItem containerAttached = null;
-
-    // Store initial transform parent
-    protected Transform initial_transform_parent;
-    protected bool initial_kinematic;
-
-    // Store element's rigidbody
-    protected Rigidbody rigidbody;
-    protected Collider collider;
-    protected float releasedInstance;
-
-    private void Start()
+    public class ContainableItem : MonoBehaviour
     {
-        this.rigidbody = this.GetComponent<Rigidbody>();
-        this.collider = this.GetComponent<Collider>();
-        this.initial_transform_parent = this.transform.parent;
-        this.initial_kinematic = this.rigidbody.isKinematic;
-    }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        // Trying to get the ContainerItem component from the 'other' GameObject
-        ContainerItem container = other.GetComponent<ContainerItem>();
+        // Store the container to which the object is attached
+        public bool isAttached;
+        protected ContainerItem containerAttached;
 
-        // Check if the script exists to avoid NullReferenceException
-        if (container != null && Time.time - this.releasedInstance > 2)
+        // Store initial transform parent
+        protected Transform initial_transform_parent;
+
+        // Store element's rigidbody
+        private FixedJoint _fixedJoint;
+        private Rigidbody _rigidbody;
+        private Grabbable _grabbable;
+
+        private float originalMass;
+        
+        protected float releasedInstance;
+
+        private void Start()
         {
-            // If the ContainerItem script is found, attach this item to it
-            attach_to(container);
+            _fixedJoint = GetComponent<FixedJoint>();
+            _rigidbody = GetComponent<Rigidbody>();
+            _grabbable = GetComponent<Grabbable>();
+            
+            initial_transform_parent = transform.parent;
+            
+            originalMass = _rigidbody.mass;
         }
-    }
 
-    private void attach_to(ContainerItem container)
-    {
-        if (containerAttached != null) return;
+        private void OnTriggerEnter(Collider other)
+        {
+            // Trying to get the ContainerItem component from the 'other' GameObject
+            ContainerItem container = other.GetComponent<ContainerItem>();
 
-        // Call the AttachItem method on the container, passing this component
-        container.attachItem(this);
+            // Check if the script exists to avoid NullReferenceException
+            if (container != null && Time.time - releasedInstance > 2f)
+            {
+                // If the ContainerItem script is found, attach this item to it
+                Attach(container);
+            }
+        }
 
-        this.transform.SetParent(container.transform);
-        this.rigidbody.isKinematic = true;
-        this.collider.enabled = false;
-        containerAttached = container;
-    }
+        private void Attach(ContainerItem container)
+        {
+            if (isAttached || _grabbable.held) return;
+            transform.SetParent(container.transform);
 
-    public void detach()
-    {
-        if (containerAttached == null) return;
+            // attach the object to the container
+            // we also set the mass near zero so that velocity is not redistributed
+            _rigidbody.mass = 1e-7f;
+            _fixedJoint.connectedBody = container.rigidbody;
 
-        this.transform.SetParent(this.initial_transform_parent);
-        this.rigidbody.isKinematic = this.initial_kinematic;
-        this.collider.enabled = true;
-        containerAttached = null;
-        this.releasedInstance = Time.time;
+            // should not be able to range grab stuff in a container
+            gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+            
+            // Call the AddItem method on the container, passing this component
+            isAttached = true;
+            containerAttached = container;
+            containerAttached.AddItem(this);
+        }
+
+        public void Detach()
+        {
+            if (!isAttached) return;
+            transform.SetParent(initial_transform_parent);
+
+            // detach the object from the container
+            _rigidbody.mass = originalMass;
+            _fixedJoint.connectedBody = null;
+
+            gameObject.layer = LayerMask.NameToLayer("Grabbable");
+            
+            // Call the RemoveItem method on the container, passing this component
+            isAttached = false;
+            containerAttached.RemoveItem(this);
+            containerAttached = null;
+            releasedInstance = Time.time;
+        }
     }
 }

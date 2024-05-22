@@ -1,74 +1,79 @@
-using System.Collections;
 using System.Collections.Generic;
+using Grab;
 using UnityEngine;
 
-public class ContainerItem : MonoBehaviour
+namespace FillContainer
 {
-
-    public List<ContainableItem> itemsContained;
-
-    public BoxCollider boxCollider;
-    public float maximumColliderYSize;
-    public float stepIncrease;
-    private float minimumColliderYSize;
-
-    private void Start()
+    public class ContainerItem : MonoBehaviour
     {
-        minimumColliderYSize = boxCollider.size.y;
-    }
 
-    void Update()
-    {
-        // Using the dot product to determine orientation relative to the global up (Vector3.up)
-        float dot = Vector3.Dot(transform.up, Vector3.up);
-        bool upsideDown = false;
+        public List<ContainableItem> itemsContained;
 
-        if (dot < -0.9) // You can adjust the threshold for sensitivity
+        public Rigidbody rigidbody;
+
+        public BoxCollider boxCollider;
+        public float stepIncrease;
+        public float maximumColliderYSize;
+        private float _minimumColliderYSize;
+        private int _overload;
+
+        private void Start()
         {
-            Debug.Log("The object is upside down.");
-            upsideDown = true;
-
+            rigidbody = GetComponent<Rigidbody>();
+            _minimumColliderYSize = boxCollider.size.y;
         }
 
-        for (int i = itemsContained.Count - 1; i >= 0; i--)
+        void Update()
         {
-            ObjectAnchor itemAnchor = itemsContained[i].GetComponent<ObjectAnchor>();
-            if (upsideDown || itemAnchor && itemAnchor.grabbed)
+            // Determine orientation relative to the global up (Vector3.up)
+            // You can adjust the threshold for sensitivity
+            if (Vector3.Angle(transform.up, Vector3.up) < 150) return;
+            
+            Debug.Log("The container is upside down.");
+
+            // Iterate over the objects starting from the last one added
+            for (int i = itemsContained.Count - 1; i >= 0; i--)
             {
-                this.detachItem(itemsContained[i]); // Assuming SomeFunction triggers deletion inside itself
-                return;
+                // // detaching will be handled by Grabbable instead
+                // Grabbable item = itemsContained[i].GetComponent<Grabbable>();
+                // if (upsideDown || (item && item.held))
+                ContainableItem item = itemsContained[i];
+                item.Detach();
             }
         }
-    }
          
-    public void attachItem(ContainableItem item)
-    {
-        itemsContained.Add(item);
-        if (this.boxCollider.size.y < this.maximumColliderYSize)
+        public void AddItem(ContainableItem item)
         {
-            boxCollider.size = new Vector3(boxCollider.size.x, boxCollider.size.y + this.stepIncrease, boxCollider.size.z);
-            boxCollider.transform.position = new Vector3(boxCollider.transform.position.x, boxCollider.transform.position.y + (this.stepIncrease / 2), boxCollider.transform.position.z);
+            // add an item to container list (does not attach it)
+            itemsContained.Add(item);
+        
+            // increase boxCollider size as the container fills up
+            if (boxCollider.size.y < maximumColliderYSize)
+            {
+                boxCollider.size += new Vector3(0f, stepIncrease, 0f);
+                boxCollider.transform.localPosition += new Vector3(0f, stepIncrease / 2f, 0f);
+            }
+            else
+            {
+                _overload += 1;
+            }
         }
-        else
-        {
-            boxCollider.size = new Vector3(boxCollider.size.x, this.maximumColliderYSize, boxCollider.size.z);
-            boxCollider.transform.position = new Vector3(boxCollider.transform.position.x, (this.maximumColliderYSize - this.minimumColliderYSize) / 2, boxCollider.transform.position.z);
-        }
-    }
 
-    public void detachItem(ContainableItem item)
-    {
-        item.detach();
-        itemsContained.Remove(item);
-        if (this.boxCollider.size.y > this.minimumColliderYSize)
+        public void RemoveItem(ContainableItem item)
         {
-            boxCollider.size = new Vector3(boxCollider.size.x, boxCollider.size.y - this.stepIncrease, boxCollider.size.z);
-            boxCollider.transform.position = new Vector3(boxCollider.transform.position.x, boxCollider.transform.position.y - (this.stepIncrease / 2), boxCollider.transform.position.z);
-        }
-        else
-        {
-            boxCollider.size = new Vector3(boxCollider.size.x, this.minimumColliderYSize, boxCollider.size.z);
-            boxCollider.transform.position = new Vector3(boxCollider.transform.position.x, 0, boxCollider.transform.position.z);
+            // remove an item from a container list (does not detach it)
+            itemsContained.Remove(item);
+
+            // decrease boxCollider size as the container is emptied
+            if (_overload > 0)
+            {
+                _overload -= 1;
+            }
+            else
+            {
+                boxCollider.size -= new Vector3(0f, stepIncrease, 0f);
+                boxCollider.transform.localPosition -= new Vector3(0f, stepIncrease / 2f, 0f);
+            }
         }
     }
 }
