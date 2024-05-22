@@ -5,7 +5,7 @@ namespace GameLogic.Plants
         public Potato()
         {
             PlantName = "Potato";
-            StageGrowTime = 100;
+            stageGrowTime = 130;
         }
 
         public override void Breed(Plant partner)

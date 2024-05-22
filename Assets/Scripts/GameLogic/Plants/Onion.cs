@@ -7,8 +7,7 @@ namespace GameLogic.Plants
         public Onion()
         {
             PlantName = "Onion";
-            StageGrowTime = 5;
-            Debug.Log("Onion created");
+            stageGrowTime = 100;
         }
 
         public override void Breed(Plant partner)

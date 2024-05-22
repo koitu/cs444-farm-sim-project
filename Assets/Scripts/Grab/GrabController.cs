@@ -77,9 +77,9 @@ namespace Grab
 		private const float LongPullingConstTime = 0.8f;  // approx time for farther object to be pulled in
 		private const float ShortPullingConstTime = 0.3f;  // approx time for nearby object to be pulled in
 		private const float ShortPullingThreshold = 3f; // distance within an object is considered nearby
-		private const float VelocityThreshold = 2f;  // velocity threshold to activate pull
+		private const float VelocityThreshold = 1f;  // velocity threshold to activate pull
 		private const float RotationThreshold = 3f;  // rotation threshold to activate pull
-		private const float AngleThreshold = 60f; // angle threshold to activate pull
+		private const float AngleThreshold = 50f; // angle threshold to activate pull
 		
 		private void Start()
 		{

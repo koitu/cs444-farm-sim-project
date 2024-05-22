@@ -60,7 +60,7 @@ namespace GameLogic.Field
                 case "Hoe":
                     if (_numPlant > 0 || _progress > 1f) break;
 
-                    this.audioSource.Play();
+                    audioSource.Play();
                     Grabbable hoe = c.gameObject.GetComponent<Grabbable>();
                     float rot = hoe.GetRotation().magnitude;
                     
@@ -69,21 +69,18 @@ namespace GameLogic.Field
                     // 4pi Rad/s for good (+0.4)
                     // 2pi Rad/s for ok (+0.3)
                     // otherwise (+0.2)
-                    if (rot > 8 * Math.PI)
+                    // Debug.LogWarningFormat("rot: {0}", rot);
+                    if (rot > 4 * Math.PI)
                     {
-                        _progress += 0.55f;
-                    }
-                    else if (rot > 4 * Math.PI)
-                    {
-                        _progress += 0.4f;
+                        _progress += 0.61f;
                     }
                     else if (rot > 2 * Math.PI)
                     {
-                        _progress += 0.3f;
+                        _progress += 0.31f;
                     }
                     else
                     {
-                        _progress += 0.2f;
+                        _progress += 0.16f;
                     }
                     UpdateSoil();
                     break;
@@ -143,6 +140,9 @@ namespace GameLogic.Field
             _extraPlant.Body.isKinematic = true;
             _extraPlant.gameObject.layer = LayerMask.NameToLayer("Grabbable");
 
+            // hide the extra plant
+            _plant.transform.position += Vector3.down;
+
             // set done growing to true to all us to dig out plants
             _numPlant = 2;
             _doneGrowing = true;
@@ -173,6 +173,10 @@ namespace GameLogic.Field
                             _plant.ResetPlant();
                             _plant.Body.detectCollisions = true;
                             _plant.gameObject.layer = LayerMask.NameToLayer("Grabbable");
+                            
+                            // reveal the extra plant
+                            _meshFilter.mesh = progress50;
+                            _plant.transform.position += Vector3.up;
                         }
                     }
                     else if(_numPlant == 1)
@@ -182,6 +186,8 @@ namespace GameLogic.Field
                             _plant = null;
                             _numPlant = 0;
                             _doneGrowing = false;
+
+                            _meshFilter.mesh = progress0;
                         }
                     }
                     break;

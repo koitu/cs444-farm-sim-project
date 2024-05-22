@@ -27,8 +27,10 @@ namespace GameLogic.Plants
         public bool growing;
 
         public string PlantName { get; protected set; }
-        public int StageGrowTime { get; protected set; }
-        public int StageGrowTimeLeft { get; set; }
+        
+        [Range(5, 300)]
+        public int stageGrowTime;
+        private int _stageGrowTimeLeft;
 
         public abstract void Breed(Plant partner);
 
@@ -67,7 +69,7 @@ namespace GameLogic.Plants
             _stageIdx = 0;
             _stageObj.SetActive(false); // make the plant invisible when first planted
             _timePassed = 0f;
-            StageGrowTimeLeft = StageGrowTime;
+            _stageGrowTimeLeft = stageGrowTime;
             
             transform.position = _plot.transform.position;
             transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
@@ -75,10 +77,10 @@ namespace GameLogic.Plants
     
         private void GrowStep()
         {
-            StageGrowTimeLeft--;
+            _stageGrowTimeLeft--;
 
-            if (StageGrowTimeLeft > 0) return;
-            StageGrowTimeLeft = StageGrowTime;
+            if (_stageGrowTimeLeft > 0) return;
+            _stageGrowTimeLeft = stageGrowTime;
             this._audioSource.Play();
 
             if (_stageIdx < MaxStage)
@@ -115,7 +117,7 @@ namespace GameLogic.Plants
 
         public override string ToString()
         {
-            return $"{PlantName} with {StageGrowTimeLeft} days left to grow.";
+            return $"{PlantName} with {_stageGrowTimeLeft} days left to grow.";
         }
     }
 }
